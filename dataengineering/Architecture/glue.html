@@ -555,18 +555,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#json-handling" class="md-nav__link">
+  <a href="#pros" class="md-nav__link">
     <span class="md-ellipsis">
-      JSON handling
+      Pros
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
+  <a href="#cons" class="md-nav__link">
     <span class="md-ellipsis">
-      Limitations
+      Cons:
     </span>
   </a>
   
@@ -876,18 +876,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#json-handling" class="md-nav__link">
+  <a href="#pros" class="md-nav__link">
     <span class="md-ellipsis">
-      JSON handling
+      Pros
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
+  <a href="#cons" class="md-nav__link">
     <span class="md-ellipsis">
-      Limitations
+      Cons:
     </span>
   </a>
   
@@ -915,20 +915,25 @@ It can run in Python Shell mode or Spark.
 A Glue Job can be triggered using EventBridge.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Optimized for large data</li>
-<li>Serverless</li>
-<li>Schema Evolution</li>
-<li>Integrated catalog</li>
-<li>Spark based</li>
+<li>Glue Crawler to catalog data</li>
+<li>Glue ETL jobs (Spark-based)</li>
+<li>Bookmarking for tracking processed files</li>
+<li>Glue Data Quality for validation</li>
+<li>CloudWatch for monitoring</li>
 </ul>
-<h2 id="json-handling">JSON handling<a class="headerlink" href="#json-handling" title="Permanent link">&para;</a></h2>
+<h2 id="pros">Pros<a class="headerlink" href="#pros" title="Permanent link">&para;</a></h2>
 <ul>
-<li>built-in json parsing with schema inference</li>
-<li>can handle complex structures</li>
+<li>Built-in bookmarking for state tracking</li>
+<li>Handles large files efficiently</li>
+<li>Auto-scaling with DPUs</li>
+<li>Rich ETL capabilities</li>
+<li>Supports streaming with Glue Streaming</li>
 </ul>
-<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<h2 id="cons">Cons:<a class="headerlink" href="#cons" title="Permanent link">&para;</a></h2>
 <ul>
-<li>has a minimum billing duration</li>
+<li>Higher minimum cost (10-minute billing minimum)</li>
+<li>Spark overhead for small files</li>
+<li>More complex setup</li>
 </ul>
 
 

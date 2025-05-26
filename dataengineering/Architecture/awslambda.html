@@ -532,27 +532,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pros
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cons
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#decoupling" class="md-nav__link">
     <span class="md-ellipsis">
       Decoupling
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Limitations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#json-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      JSON handling
     </span>
   </a>
   
@@ -885,27 +885,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pros" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pros
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cons
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#decoupling" class="md-nav__link">
     <span class="md-ellipsis">
       Decoupling
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Limitations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#json-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      JSON handling
     </span>
   </a>
   
@@ -930,25 +930,36 @@
 <h1 id="aws-lambda">AWS Lambda<a class="headerlink" href="#aws-lambda" title="Permanent link">&para;</a></h1>
 <h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Trigger a Lambda function when files arrive in S3 bucket.</li>
-<li>Read and process parquet file.</li>
-<li>write status and error logs
-  ** Track status in DynamoDB. Both success and failure.
-  ** Use Dead letter Queue</li>
-<li>Scales with incoming S3 events</li>
+  <li>Trigger a Lambda function when files arrive in S3 bucket</li>
+  <li>Read and process parquet file using <i>pyarrow/fastparquet</i></li>
+  <li>write status and error logs
+    <ul>
+      <li>Track status in DynamoDB. Both success and failure</li>
+      <li>Use Dead letter Queue SQS</li>
+    </ul>
+  </li>
+  <li>Step Functions for orchesteration(Optional)</li>
+</ul>
+
+<h2 id="pros">Pros<a class="headerlink" href="#pros" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Event-driven, processes files immediately</li>
+<li>Automatic scaling with concurrent executions</li>
+<li>Cost-effective for sporadic workloads</li>
+<li>Low operational overhead</li>
+</ul>
+<h2 id="cons">Cons<a class="headerlink" href="#cons" title="Permanent link">&para;</a></h2>
+<ul>
+<li>15-minute timeout limit</li>
+<li>10GB memory limit</li>
+<li>512MB ephemeral storage (can extend to 10GB)</li>
+<li>Cold start latency unless provisioned</li>
+<li>Step functions cost is based on number of transitions</li>
 </ul>
 <h2 id="decoupling">Decoupling<a class="headerlink" href="#decoupling" title="Permanent link">&para;</a></h2>
 <p>Use SQS for a decoupled design.
 S3 triggers an Eventbridge rule with SQS as target.
 SQS has builtin retry logic and backpressure tolerance.</p>
-<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
-<ul>
-<li>15 min</li>
-<li>memory</li>
-</ul>
-<h2 id="json-handling">JSON handling<a class="headerlink" href="#json-handling" title="Permanent link">&para;</a></h2>
-<p>import python libraries.
-ijson is an iterative parser.</p>
 
 
 
