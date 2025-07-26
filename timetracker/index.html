@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Time Tracker</h1>
+            <nav>
+                <button id="dashboardBtn" class="nav-btn active">Dashboard</button>
+                <button id="projectsBtn" class="nav-btn">Projects</button>
+                <button id="tasksBtn" class="nav-btn">Tasks</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view active">
+                <h2>Dashboard</h2>
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Total Projects</h3>
+                        <span id="totalProjects" class="stat">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Active Tasks</h3>
+                        <span id="activeTasks" class="stat">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Today's Time</h3>
+                        <span id="todayTime" class="stat">0h 0m</span>
+                    </div>
+                </div>
+
+                <div class="project-summaries">
+                    <h3>Time by Project</h3>
+                    <div id="projectSummaries"></div>
+                </div>
+
+                <div class="active-tasks-section">
+                    <h3>Currently Running Tasks</h3>
+                    <div id="runningTasks"></div>
+                </div>
+            </div>
+
+            <!-- Projects View -->
+            <div id="projectsView" class="view">
+                <div class="section-header">
+                    <h2>Projects</h2>
+                    <button id="addProjectBtn" class="btn btn-primary">+ Add Project</button>
+                </div>
+
+                <div id="projectsList" class="items-list"></div>
+
+                <!-- Add/Edit Project Modal -->
+                <div id="projectModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3 id="projectModalTitle">Add Project</h3>
+                        <form id="projectForm">
+                            <input type="hidden" id="projectId">
+                            <div class="form-group">
+                                <label for="projectName">Project Name:</label>
+                                <input type="text" id="projectName" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasksView" class="view">
+                <div class="section-header">
+                    <h2>Tasks</h2>
+                    <button id="addTaskBtn" class="btn btn-primary">+ Add Task</button>
+                </div>
+
+                <div class="filters">
+                    <select id="projectFilter">
+                        <option value="">All Projects</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="stopped">Stopped</option>
+                        <option value="running">Running</option>
+                        <option value="paused">Paused</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+
+                <div id="tasksList" class="items-list"></div>
+
+                <!-- Add/Edit Task Modal -->
+                <div id="taskModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3 id="taskModalTitle">Add Task</h3>
+                        <form id="taskForm">
+                            <input type="hidden" id="taskId">
+                            <div class="form-group">
+                                <label for="taskName">Task Name:</label>
+                                <input type="text" id="taskName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskProject">Project:</label>
+                                <select id="taskProject" required>
+                                    <option value="">Select Project</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
