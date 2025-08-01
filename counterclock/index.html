@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace Clock - Counter-Clockwise Clock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .clock-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .clock-face {
+            width: 400px;
+            height: 400px;
+            position: relative;
+        }
+
+        .center-dot {
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .hour-number {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            transform: translate(-50%, -50%);
+        }
+
+        .minute-marker {
+            position: absolute;
+            background: #666;
+            transform-origin: bottom center;
+        }
+
+        .minute-marker.major {
+            width: 4px;
+            height: 20px;
+            background: #333;
+        }
+
+        .minute-marker.minor {
+            width: 2px;
+            height: 12px;
+        }
+
+        .hand {
+            position: absolute;
+            background: #333;
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 120px;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 140px;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Grace Clock</h1>
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/37/Grace_Hopper_and_UNIVAC.jpg" 
+                         alt="Grace Hopper" 
+                         class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-md">
+                    <div class="text-left">
+                        <blockquote class="text-lg md:text-xl text-gray-700 italic leading-relaxed">
+                            "Humans are allergic to change. They love to say, 'We've always done it this way.' 
+                            I try to fight that. That's why I have a clock on my wall that runs counter-clockwise."
+                        </blockquote>
+                        <cite class="block mt-4 text-right text-gray-600 font-semibold">— Grace Hopper</cite>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center">
+            <div class="clock-container">
+        <div class="clock-face">
+            <div class="hour-number" id="hour-12">12</div>
+            <div class="hour-number" id="hour-1">1</div>
+            <div class="hour-number" id="hour-2">2</div>
+            <div class="hour-number" id="hour-3">3</div>
+            <div class="hour-number" id="hour-4">4</div>
+            <div class="hour-number" id="hour-5">5</div>
+            <div class="hour-number" id="hour-6">6</div>
+            <div class="hour-number" id="hour-7">7</div>
+            <div class="hour-number" id="hour-8">8</div>
+            <div class="hour-number" id="hour-9">9</div>
+            <div class="hour-number" id="hour-10">10</div>
+            <div class="hour-number" id="hour-11">11</div>
+            
+            <div class="hand hour-hand" id="hour-hand"></div>
+            <div class="hand minute-hand" id="minute-hand"></div>
+            <div class="hand second-hand" id="second-hand"></div>
+            <div class="center-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function positionHourNumbers() {
+            const radius = 130;
+            const centerX = 200;
+            const centerY = 200;
+
+            for (let hour = 1; hour <= 12; hour++) {
+                const angle = (hour === 12 ? 0 : -hour * 30) * (Math.PI / 180);
+                const x = centerX + radius * Math.cos(angle - Math.PI / 2);
+                const y = centerY + radius * Math.sin(angle - Math.PI / 2);
+                
+                const hourElement = document.getElementById(`hour-${hour === 12 ? 12 : hour}`);
+                hourElement.style.left = x + 'px';
+                hourElement.style.top = y + 'px';
+            }
+        }
+
+        function createMinuteMarkers() {
+            const clockFace = document.querySelector('.clock-face');
+            const centerX = 200;
+            const centerY = 200;
+            const outerRadius = 170;
+            
+            for (let minute = 0; minute < 60; minute++) {
+                const marker = document.createElement('div');
+                marker.className = minute % 5 === 0 ? 'minute-marker major' : 'minute-marker minor';
+                
+                const angle = -minute * 6 * (Math.PI / 180);
+                const x = centerX + outerRadius * Math.cos(angle - Math.PI / 2);
+                const y = centerY + outerRadius * Math.sin(angle - Math.PI / 2);
+                
+                marker.style.left = x + 'px';
+                marker.style.top = y + 'px';
+                marker.style.transform = `translate(-50%, -50%) rotate(${-minute * 6}deg)`;
+                
+                clockFace.appendChild(marker);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date(Date.now());
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours() % 12;
+
+            const secondAngle = -seconds * 6;
+            const minuteAngle = -(minutes * 6 + seconds * 0.1);
+            const hourAngle = -(hours * 30 + minutes * 0.5);
+
+            document.getElementById('second-hand').style.transform = `translateX(-50%) rotate(${secondAngle}deg)`;
+            document.getElementById('minute-hand').style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            document.getElementById('hour-hand').style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+        }
+
+        positionHourNumbers();
+        createMinuteMarkers();
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
