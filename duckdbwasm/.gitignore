@@ -1,0 +1,10 @@
+# OS-specific
+.DS_Store
+
+# IDE-specific
+.idea/
+*.iml
+
+# Node.js specific (if applicable)
+node_modules/
+npm-debug.log

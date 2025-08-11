@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckDB WASM Debug</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "apache-arrow": "./node_modules/apache-arrow/Arrow.mjs",
+            "flatbuffers": "./node_modules/flatbuffers/mjs/flatbuffers.js",
+            "tslib": "./node_modules/tslib/tslib.es6.js"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as duckdbWasm from './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser.mjs';
+        window.duckdb = duckdbWasm;
+        console.log('DuckDB WASM loaded:', duckdbWasm);
+        
+        // Run the test immediately after loading
+        if (window.testDuckDB) {
+            window.testDuckDB();
+        } else {
+            // If testDuckDB isn't defined yet, wait for it
+            setTimeout(() => {
+                if (window.testDuckDB) {
+                    window.testDuckDB();
+                }
+            }, 100);
+        }
+    </script>
+</head>
+<body>
+    <h1>DuckDB WASM Debug</h1>
+    <div id="output"></div>
+    
+    <script>
+        async function testDuckDB() {
+            const output = document.getElementById('output');
+            
+            function log(message, isError = false) {
+                const div = document.createElement('div');
+                div.textContent = `${new Date().toISOString()}: ${message}`;
+                div.style.color = isError ? 'red' : 'black';
+                div.style.fontFamily = 'monospace';
+                div.style.marginBottom = '5px';
+                output.appendChild(div);
+                if (isError) {
+                    console.error(message);
+                } else {
+                    console.log(message);
+                }
+            }
+            
+            try {
+                log('Starting DuckDB WASM test...');
+                
+                // Test 1: Check available global objects
+                log('Checking global objects...');
+                log(`Window.duckdb: ${typeof window.duckdb}`);
+                log(`Window.DuckDB: ${typeof window.DuckDB}`); 
+                log(`Available globals: ${Object.keys(window).filter(k => k.toLowerCase().includes('duck')).join(', ')}`);
+                
+                const duckdb = window.duckdb || window.DuckDB;
+                if (!duckdb) {
+                    throw new Error('DuckDB WASM library not found in global scope');
+                }
+                log('✓ Successfully imported DuckDB WASM module');
+                
+                // Test 2: Create local bundles (avoid CORS issues)
+                log('Creating local bundles...');
+                const LOCAL_BUNDLES = {
+                    mvp: {
+                        mainModule: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm',
+                        mainWorker: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js',
+                    },
+                    eh: {
+                        mainModule: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-eh.wasm',
+                        mainWorker: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js',
+                    },
+                    coi: {
+                        mainModule: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-coi.wasm',
+                        mainWorker: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-coi.worker.js',
+                        pthreadWorker: './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-coi.pthread.worker.js',
+                    }
+                };
+                log(`✓ Got bundles: ${JSON.stringify(Object.keys(LOCAL_BUNDLES), null, 2)}`);
+                
+                // Test 3: Select bundle
+                log('Selecting bundle...');
+                const bundle = await duckdb.selectBundle(LOCAL_BUNDLES);
+                log(`✓ Selected bundle: ${JSON.stringify({
+                    mainModule: bundle.mainModule ? 'present' : 'missing',
+                    mainWorker: bundle.mainWorker ? 'present' : 'missing', 
+                    pthreadWorker: bundle.pthreadWorker ? 'present' : 'missing'
+                }, null, 2)}`);
+                
+                // Test 4: Check URLs
+                log(`Bundle URLs: mainWorker=${bundle.mainWorker}, mainModule=${bundle.mainModule}`);
+                
+                // Test 5: Try to create worker
+                log('Creating worker...');
+                const worker = new Worker(bundle.mainWorker);
+                log('✓ Worker created successfully');
+                
+                // Test 6: Create logger
+                log('Creating logger...');
+                const logger = new duckdb.ConsoleLogger();
+                log('✓ Logger created successfully');
+                
+                // Test 7: Create AsyncDuckDB
+                log('Creating AsyncDuckDB instance...');
+                const db = new duckdb.AsyncDuckDB(logger, worker);
+                log('✓ AsyncDuckDB instance created');
+                
+                // Test 8: Instantiate
+                log('Instantiating DuckDB...');
+                await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+                log('✓ DuckDB instantiated successfully');
+                
+                // Test 9: Connect
+                log('Connecting to database...');
+                const connection = await db.connect();
+                log('✓ Connected to database');
+                
+                // Test 10: Simple query
+                log('Running test query...');
+                const result = await connection.query('SELECT 42 as answer');
+                log(`✓ Query executed. Result: ${JSON.stringify(result.toArray())}`);
+                
+                log('🎉 All tests passed! DuckDB WASM is working correctly.');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, true);
+                log(`Stack: ${error.stack}`, true);
+            }
+        }
+        
+        // Make testDuckDB available globally immediately
+        window.testDuckDB = testDuckDB;
+    </script>
+</body>
+</html>
