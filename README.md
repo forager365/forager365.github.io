@@ -34,3 +34,7 @@ and case_status = 'Certified'
 and worksite_city = 'Houston'
 and job_title like '%Lead%'
 ```
+
+https://forager365.github.io/lca2025q1
+
+https://forager365.github.io/duckdbwasm
