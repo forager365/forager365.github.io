@@ -6,5 +6,4 @@
 *.iml
 
 # Node.js specific (if applicable)
-node_modules/
 npm-debug.log
