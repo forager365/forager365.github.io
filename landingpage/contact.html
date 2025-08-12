@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Relaitecs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1><a href="index.html" style="text-decoration: none; color: inherit;">Relaitecs</a></h1>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="services.html" class="nav-link">Services</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="data-strategy.html">Data Strategy</a></li>
+                            <li><a href="edtech.html">Ed Tech</a></li>
+                            <li><a href="ai-ml.html">AI and ML</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="whitepapers.html" class="nav-link">Whitepapers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="about.html" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="testimonials.html" class="nav-link">Testimonials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="contact.html" class="nav-link active">Contact</a>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <div class="container">
+                <h1 class="page-title">Get In Touch</h1>
+                <p class="page-subtitle">Ready to future-proof your business? Let's discuss how we can help you achieve your technology goals.</p>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-form-container">
+                        <h2>Send Us a Message</h2>
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company">Company</label>
+                                <input type="text" id="company" name="company">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="service">Service Interest</label>
+                                <select id="service" name="service">
+                                    <option value="">Select a service</option>
+                                    <option value="data-strategy">Data Strategy</option>
+                                    <option value="edtech">Ed Tech</option>
+                                    <option value="ai-ml">AI and Machine Learning</option>
+                                    <option value="consultation">General Consultation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" name="message" rows="5" placeholder="Tell us about your project or questions..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-large">Send Message</button>
+                        </form>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <h2>Contact Information</h2>
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <div class="contact-icon">📍</div>
+                                <div class="contact-text">
+                                    <h3>Address</h3>
+                                    <p>123 Innovation Drive<br>Tech City, TC 12345<br>United States</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">📧</div>
+                                <div class="contact-text">
+                                    <h3>Email</h3>
+                                    <p><a href="mailto:hello@relaitecs.com">hello@relaitecs.com</a></p>
+                                    <p><a href="mailto:support@relaitecs.com">support@relaitecs.com</a></p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">📞</div>
+                                <div class="contact-text">
+                                    <h3>Phone</h3>
+                                    <p><a href="tel:+1-555-123-4567">+1 (555) 123-4567</a></p>
+                                    <p>Mon-Fri: 9:00 AM - 6:00 PM EST</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="office-hours">
+                            <h3>Office Hours</h3>
+                            <div class="hours-list">
+                                <div class="hours-item">
+                                    <span>Monday - Friday</span>
+                                    <span>9:00 AM - 6:00 PM EST</span>
+                                </div>
+                                <div class="hours-item">
+                                    <span>Saturday</span>
+                                    <span>10:00 AM - 2:00 PM EST</span>
+                                </div>
+                                <div class="hours-item">
+                                    <span>Sunday</span>
+                                    <span>Closed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-cta">
+            <div class="container">
+                <div class="cta-cards">
+                    <div class="cta-card">
+                        <div class="cta-icon">🚀</div>
+                        <h3>Start Your Project</h3>
+                        <p>Ready to begin? Schedule a free consultation to discuss your technology needs and explore solutions.</p>
+                        <a href="#contactForm" class="btn btn-outline">Schedule Consultation</a>
+                    </div>
+                    <div class="cta-card">
+                        <div class="cta-icon">📚</div>
+                        <h3>Download Resources</h3>
+                        <p>Explore our whitepapers and case studies to learn more about our approach and success stories.</p>
+                        <a href="whitepapers.html" class="btn btn-outline">View Resources</a>
+                    </div>
+                    <div class="cta-card">
+                        <div class="cta-icon">💬</div>
+                        <h3>Join Our Community</h3>
+                        <p>Stay updated with the latest insights, trends, and innovations in technology and business strategy.</p>
+                        <a href="#" class="btn btn-outline">Subscribe Newsletter</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Relaitecs</h3>
+                    <p>Future proofing businesses with innovative technology solutions.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="data-strategy.html">Data Strategy</a></li>
+                        <li><a href="edtech.html">Ed Tech</a></li>
+                        <li><a href="ai-ml.html">AI and ML</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="testimonials.html">Testimonials</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="whitepapers.html">Whitepapers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Relaitecs. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Contact form handling
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Simple validation
+            if (!data.name || !data.email || !data.message) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Here you would typically send the data to your server
+            // For this demo, we'll just show a success message
+            alert('Thank you for your message! We will get back to you within 24 hours.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
