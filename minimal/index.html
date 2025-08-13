@@ -47,6 +47,7 @@
     <!-- GitHub Pages client-side routing handler -->
     <script>
       (function(l) {
+        // Handle GitHub Pages 404 redirects
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
             return s.replace(/~and~/g, '&')
@@ -54,6 +55,20 @@
           window.history.replaceState(null, null,
             l.pathname.slice(0, -1) + decoded + l.hash
           );
+        }
+        
+        // Strip /minimal prefix for React Router
+        if (l.pathname.includes('/minimal/')) {
+          var cleanPath = l.pathname.replace('/minimal', '') || '/';
+          // Only update if the path actually changed
+          if (cleanPath !== l.pathname) {
+            window.history.replaceState(null, null, cleanPath + l.search + l.hash);
+          }
+        }
+        
+        // Handle direct access to /minimal/index.html
+        if (l.pathname === '/minimal/index.html') {
+          window.history.replaceState(null, null, '/' + l.search + l.hash);
         }
       }(window.location))
     </script>

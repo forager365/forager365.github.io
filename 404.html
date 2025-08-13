@@ -5,18 +5,20 @@
     <title>Redirecting...</title>
     <script>
         // GitHub Pages 404 handler for client-side routing
-        var segmentCount = 1; // Number of directories in your GitHub Pages URL
         var l = window.location;
+        var path = l.pathname;
         
-        // Redirect to the base URL with path info as query parameter
-        l.replace(
-            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            '/minimal/?/' +
-            l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-        );
+        // If the path starts with /minimal/, redirect to the React app
+        if (path.startsWith('/minimal/')) {
+            var reactPath = path.replace('/minimal', '') || '/';
+            l.replace('/minimal/?/' + reactPath.slice(1) + (l.search || '') + (l.hash || ''));
+        } else {
+            // For any other 404, redirect to the main app
+            l.replace('/minimal/?/' + path.slice(1) + (l.search || '') + (l.hash || ''));
+        }
     </script>
 </head>
-<body></body>
+<body>
+    <p>Redirecting...</p>
+</body>
 </html>
