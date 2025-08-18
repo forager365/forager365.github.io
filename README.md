@@ -22,6 +22,7 @@ https://forager365.github.io/julite/lab/index.html
 
 try these queries  https://sql-workbench.com/
 
+```
 select * from read_csv_auto('https://forager365.github.io/lca.csv')
 where case_status = 'Certified'
 and worksite_state = 'OH'
