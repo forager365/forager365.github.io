@@ -460,9 +460,12 @@ class DuckDBWorksheet {
         const columns = result.schema.fields.map(field => field.name);
         const rows = result.toArray().map(row => Object.values(row));
         
+        this.currentResultData = { columns, rows };
+        
         let html = `
             <div class="success">
                 Query executed successfully in ${executionTime}ms - ${result.numRows} row(s) returned
+                <button id="downloadCsvBtn" class="download-btn" onclick="window.worksheet.downloadCSV()">Download CSV</button>
             </div>
             <table class="results-table">
                 <thead>
@@ -500,9 +503,12 @@ class DuckDBWorksheet {
         const columns = result.columns;
         const rows = result.values;
         
+        this.currentResultData = { columns, rows };
+        
         let html = `
             <div class="success">
                 Query executed successfully in ${executionTime}ms - ${result.numRows} row(s) returned
+                <button id="downloadCsvBtn" class="download-btn" onclick="window.worksheet.downloadCSV()">Download CSV</button>
             </div>
             <table class="results-table">
                 <thead>
@@ -566,6 +572,50 @@ class DuckDBWorksheet {
         return div.innerHTML;
     }
 
+    downloadCSV() {
+        if (!this.currentResultData) {
+            alert('No query results available to download');
+            return;
+        }
+
+        const { columns, rows } = this.currentResultData;
+        
+        let csvContent = columns.map(col => this.escapeCsv(col)).join(',') + '\n';
+        
+        rows.forEach(row => {
+            const csvRow = row.map(cell => {
+                if (cell === null || cell === undefined) {
+                    return '';
+                }
+                return this.escapeCsv(String(cell));
+            }).join(',');
+            csvContent += csvRow + '\n';
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'query_results.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    escapeCsv(value) {
+        if (typeof value !== 'string') {
+            value = String(value);
+        }
+        
+        if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
+            return '"' + value.replace(/"/g, '""') + '"';
+        }
+        return value;
+    }
+
     async cleanup() {
         try {
             if (this.connection) {
@@ -585,6 +635,7 @@ class DuckDBWorksheet {
 function initializeApp() {
     console.log('Initializing app...');
     const worksheet = new DuckDBWorksheet();
+    window.worksheet = worksheet;
     console.log('DuckDBWorksheet created:', worksheet);
     
     window.addEventListener('beforeunload', () => {

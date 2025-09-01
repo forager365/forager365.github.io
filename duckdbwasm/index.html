@@ -111,6 +111,27 @@
             background-color: #7f8c8d;
         }
 
+        .download-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-left: 0.5rem;
+        }
+
+        .download-btn:hover {
+            background-color: #229954;
+        }
+
+        .download-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
         .results-container {
             flex: 1;
             border: 1px solid #ddd;
@@ -178,46 +199,45 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🦆 DuckDB SQL Worksheet</h1>
-    </div>
+<div class="header">
+    <h1>🦆 DuckDB SQL Worksheet</h1>
+</div>
 
-    <div class="container">
-        <div class="query-panel">
-            <div class="panel-header">SQL Query</div>
-            <textarea 
-                id="queryEditor" 
-                class="query-editor" 
-                placeholder="Enter your SQL query here...&#10;&#10;Basic Example:&#10;SELECT random() FROM generate_series(1,20);&#10;CREATE TABLE users (id INTEGER, name VARCHAR, age INTEGER);&#10;INSERT INTO users VALUES (1, 'John', 25), (2, 'Jane', 30);&#10;SELECT * FROM users WHERE age > 20;&#10;&#10;DuckDB Features (when WASM loads successfully):&#10;• All standard SQL operations&#10;• JSON and CSV processing&#10;• Advanced aggregations and window functions&#10;• Complex data types (arrays, structs)&#10;&#10;Fallback Features (SimpleSQL):&#10;• CREATE TABLE, INSERT, SELECT, DROP TABLE&#10;• Basic WHERE clauses and filtering &#10;&#10;DuckDb SQL: &#10; WITH damage_report AS (SELECT {'gold_casualties':5, 'blue_casualties':15, 'red_casualties': 10000} AS casualties) FROM damage_report SELECT casualties.*;"
-
-            ></textarea>
-            <div class="button-row">
-                <button id="executeBtn" class="execute-btn">Execute Query</button>
-                <button id="clearBtn" class="clear-btn">Clear</button>
-            </div>
-        </div>
-
-        <div class="results-panel">
-            <div class="panel-header">Results</div>
-            <div class="results-container">
-                <div id="loading" class="loading">
-                    Executing query...
-                </div>
-                <div id="results">
-                    <p style="color: #7f8c8d; text-align: center; padding: 2rem;">
-                        Execute a query to see results here
-                    </p>
-                </div>
-            </div>
+<div class="container">
+    <div class="query-panel">
+        <div class="panel-header">SQL Query</div>
+        <textarea
+                id="queryEditor"
+                class="query-editor"
+                placeholder="Enter your SQL query here...&#10;&#10;Basic Example:&#10;CREATE TABLE users (id INTEGER, name VARCHAR, age INTEGER);&#10;INSERT INTO users VALUES (1, 'John', 25), (2, 'Jane', 30);&#10;SELECT * FROM users WHERE age > 20;&#10;&#10;DuckDB Features (when WASM loads successfully):&#10;• All standard SQL operations&#10;• JSON and CSV processing&#10;• Advanced aggregations and window functions&#10;• Complex data types (arrays, structs)&#10;&#10;Fallback Features (SimpleSQL):&#10;• CREATE TABLE, INSERT, SELECT, DROP TABLE&#10;• Basic WHERE clauses and filtering"
+        ></textarea>
+        <div class="button-row">
+            <button id="executeBtn" class="execute-btn">Execute Query</button>
+            <button id="clearBtn" class="clear-btn">Clear</button>
         </div>
     </div>
 
-    <div class="status-bar">
-        <span id="statusText">Ready</span>
-        <span id="executionTime"></span>
+    <div class="results-panel">
+        <div class="panel-header">Results</div>
+        <div class="results-container">
+            <div id="loading" class="loading">
+                Executing query...
+            </div>
+            <div id="results">
+                <p style="color: #7f8c8d; text-align: center; padding: 2rem;">
+                    Execute a query to see results here
+                </p>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script type="importmap">
+<div class="status-bar">
+    <span id="statusText">Ready</span>
+    <span id="executionTime"></span>
+</div>
+
+<script type="importmap">
     {
         "imports": {
             "apache-arrow": "./node_modules/apache-arrow/Arrow.mjs",
@@ -225,19 +245,19 @@
             "tslib": "./node_modules/tslib/tslib.es6.js"
         }
     }
-    </script>
-    <script type="module">
-        import * as duckdbWasm from './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser.mjs';
-        window.duckdb = duckdbWasm;
-        console.log('DuckDB WASM loaded, initializing app...');
-        
-        // Load and initialize the app after DuckDB is ready
-        const script = document.createElement('script');
-        script.src = 'app.js';
-        script.onload = () => {
-            console.log('App script loaded, DuckDB should be available');
-        };
-        document.body.appendChild(script);
-    </script>
+</script>
+<script type="module">
+    import * as duckdbWasm from './node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser.mjs';
+    window.duckdb = duckdbWasm;
+    console.log('DuckDB WASM loaded, initializing app...');
+
+    // Load and initialize the app after DuckDB is ready
+    const script = document.createElement('script');
+    script.src = 'app.js';
+    script.onload = () => {
+        console.log('App script loaded, DuckDB should be available');
+    };
+    document.body.appendChild(script);
+</script>
 </body>
 </html>
