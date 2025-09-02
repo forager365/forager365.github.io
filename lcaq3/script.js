@@ -13,7 +13,9 @@ class DataGrid {
     }
     
     async init() {
+        this.showLoading();
         await this.loadData();
+        this.hideLoading();
         this.setupEventListeners();
         this.render();
     }
@@ -359,6 +361,20 @@ class DataGrid {
             return `"${field.replace(/"/g, '""')}"`;
         }
         return field;
+    }
+    
+    showLoading() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const dataTable = document.getElementById('dataTable');
+        loadingIndicator.style.display = 'flex';
+        dataTable.style.display = 'none';
+    }
+    
+    hideLoading() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const dataTable = document.getElementById('dataTable');
+        loadingIndicator.style.display = 'none';
+        dataTable.style.display = 'table';
     }
 }
 
