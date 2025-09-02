@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCA Data Grid</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>LCA 2025 Q1 Data</h1>
+        
+        <div class="controls">
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search all columns...">
+            </div>
+            <div class="controls-right">
+                <div class="page-size-container">
+                    <label for="pageSize">Items per page:</label>
+                    <select id="pageSize">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <button id="downloadCsv" class="download-btn">
+                    📥 Download CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-column="EMPLOYER_NAME">
+                            Employer Name
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="JOB_TITLE">
+                            Job Title
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="EMPLOYMENT_STATUS">
+                            Employment Status
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="WORKSITE_CITY">
+                            City
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="WORKSITE_STATE">
+                            State
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="WAGE_RATE_OF_PAY_FROM">
+                            Wage From
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="WAGE_RATE_OF_PAY_TO">
+                            Wage To
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="BEGIN_DATE">
+                            Begin Date
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                        <th data-column="END_DATE">
+                            End Date
+                            <div class="column-controls">
+                                <button class="sort-btn" data-direction="none">⇅</button>
+                                <input type="text" class="column-filter" placeholder="Filter...">
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <div class="pagination-info">
+                <span id="paginationInfo">Showing 0 - 0 of 0 records</span>
+            </div>
+            <div class="pagination-controls">
+                <button id="firstPage" disabled>First</button>
+                <button id="prevPage" disabled>Previous</button>
+                <span id="pageNumbers"></span>
+                <button id="nextPage" disabled>Next</button>
+                <button id="lastPage" disabled>Last</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
