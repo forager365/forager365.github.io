@@ -209,7 +209,8 @@
         <textarea
                 id="queryEditor"
                 class="query-editor"
-                placeholder="Enter your SQL query here...&#10;&#10;Basic Example:&#10;CREATE TABLE users (id INTEGER, name VARCHAR, age INTEGER);&#10;INSERT INTO users VALUES (1, 'John', 25), (2, 'Jane', 30);&#10;SELECT * FROM users WHERE age > 20;&#10;&#10;DuckDB Features (when WASM loads successfully):&#10;• All standard SQL operations&#10;• JSON and CSV processing&#10;• Advanced aggregations and window functions&#10;• Complex data types (arrays, structs)&#10;&#10;Fallback Features (SimpleSQL):&#10;• CREATE TABLE, INSERT, SELECT, DROP TABLE&#10;• Basic WHERE clauses and filtering"
+                  placeholder="Enter your SQL query here...&#10;&#10;Basic Example:&#10;CREATE TABLE users (id INTEGER, name VARCHAR, age INTEGER);&#10;INSERT INTO users VALUES (1, 'John', 25), (2, 'Jane', 30);&#10;SELECT * FROM users WHERE age > 20;&#10;&#10;DuckDB Features (when WASM loads successfully):&#10;• All standard SQL operations&#10;• SELECT * from 'https://forager365.github.io/lca2025q3.parquet]' limit 10&#10;• JSON and CSV processing&#10;• Advanced aggregations and window functions&#10;• Complex data types (arrays, structs)&#10;&#10;Fallback Features (SimpleSQL):&#10;• CREATE TABLE, INSERT, SELECT, DROP TABLE&#10;• Basic WHERE clauses and filtering"           
+
         ></textarea>
         <div class="button-row">
             <button id="executeBtn" class="execute-btn">Execute Query</button>
