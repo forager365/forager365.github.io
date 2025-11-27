@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Image Classifier - Train Your Own AI</title>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    <!-- MobileNet Model -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+    <!-- KNN Classifier -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier@1.2.4/dist/knn-classifier.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.training {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .train-section, .predict-section {
+            display: none;
+        }
+
+        .train-section.active, .predict-section.active {
+            display: block;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .classes-section {
+            margin-bottom: 30px;
+        }
+
+        .add-class {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-class input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .add-class input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #63408a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .classes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .class-card {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .class-card.selected {
+            border-color: #667eea;
+            background: #e7f3ff;
+        }
+
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .class-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .sample-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .class-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .preview-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #videoPreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+        }
+
+        .results-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .prediction {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .prediction-confidence {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .training-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .training-info.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sample-thumbnails {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .classes-list {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Custom Image Classifier</h1>
+        <p class="subtitle">Train Your Own AI Model</p>
+
+        <div id="status" class="status loading">
+            <div class="spinner" style="display: block;"></div>
+            Loading AI model...
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="switchMode('train')" id="trainModeBtn">
+                Training Mode
+            </button>
+            <button class="mode-btn" onclick="switchMode('predict')" id="predictModeBtn">
+                Prediction Mode
+            </button>
+        </div>
+
+        <!-- TRAINING MODE -->
+        <div class="train-section active" id="trainSection">
+            <div class="instructions">
+                <h3>Training Mode Instructions:</h3>
+                <ul>
+                    <li>Create at least 2 classes (e.g., "Cat", "Dog", "Bird")</li>
+                    <li>Select a class and add 10-30 sample images using camera or upload</li>
+                    <li>Repeat for each class you want to train</li>
+                    <li>Switch to Prediction Mode to test your trained model</li>
+                </ul>
+            </div>
+
+            <div class="classes-section">
+                <h3 style="margin-bottom: 15px; color: #333;">Your Classes:</h3>
+                <div class="add-class">
+                    <input type="text" id="classNameInput" placeholder="Enter class name (e.g., Cat, Dog, Apple...)" maxlength="30">
+                    <button class="btn btn-primary" onclick="addClass()">Add Class</button>
+                </div>
+
+                <div class="classes-list" id="classList"></div>
+
+                <div class="training-info" id="trainingInfo">
+                    Select a class above, then capture images below
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <video id="videoPreview" autoplay playsinline></video>
+                <img id="imagePreview" alt="Preview">
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+
+            <div class="camera-controls">
+                <button class="btn btn-primary" onclick="startCamera()" id="startCameraBtn" disabled>
+                    Start Camera
+                </button>
+                <button class="btn btn-success" onclick="addTrainingSample()" id="addSampleBtn" disabled>
+                    Add Sample (Hold for Multiple)
+                </button>
+                <button class="btn btn-secondary" onclick="stopCamera()" id="stopCameraBtn" disabled>
+                    Stop Camera
+                </button>
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" id="uploadTrainBtn" disabled>
+                    Upload Images
+                </button>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+        </div>
+
+        <!-- PREDICTION MODE -->
+        <div class="predict-section" id="predictSection">
+            <div class="instructions">
+                <h3>Prediction Mode Instructions:</h3>
+                <ul>
+                    <li>Use camera or upload an image to classify</li>
+                    <li>The model will predict which class it belongs to</li>
+                    <li>Make sure you have trained at least 2 classes first</li>
+                </ul>
+            </div>
+
+            <div class="camera-controls">
+                <button class="btn btn-primary" onclick="startPredictCamera()" id="predictCameraBtn" disabled>
+                    Start Camera
+                </button>
+                <button class="btn btn-success" onclick="predictFromCamera()" id="predictBtn" disabled>
+                    Predict
+                </button>
+                <button class="btn btn-secondary" onclick="stopPredictCamera()" id="stopPredictBtn" disabled>
+                    Stop Camera
+                </button>
+                <button class="btn btn-primary" onclick="document.getElementById('predictFileInput').click()" id="uploadPredictBtn" disabled>
+                    Upload Image
+                </button>
+                <input type="file" id="predictFileInput" accept="image/*">
+            </div>
+
+            <div class="preview-section">
+                <video id="videoPredictPreview" autoplay playsinline></video>
+                <img id="imagePredictPreview" alt="Preview">
+            </div>
+
+            <div class="results-section" id="results">
+                <h2>Predictions:</h2>
+                <div id="predictions"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mobilenetModel;
+        let classifier;
+        let stream;
+        let predictStream;
+        let currentMode = 'train';
+        let selectedClass = null;
+        let classes = [];
+        let trainingData = {};
+        let isAddingSample = false;
+
+        // Load models
+        async function loadModels() {
+            try {
+                mobilenetModel = await mobilenet.load();
+                classifier = knnClassifier.create();
+
+                document.getElementById('status').innerHTML = 'AI Model Ready! Start training your classifier.';
+                document.getElementById('status').className = 'status ready';
+                enableButtons();
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Error loading model. Please refresh the page.';
+                document.getElementById('status').className = 'status';
+                console.error('Error loading model:', error);
+            }
+        }
+
+        function enableButtons() {
+            document.getElementById('startCameraBtn').disabled = false;
+            document.getElementById('uploadTrainBtn').disabled = false;
+        }
+
+        // Switch between train and predict mode
+        function switchMode(mode) {
+            currentMode = mode;
+
+            if (mode === 'train') {
+                document.getElementById('trainSection').classList.add('active');
+                document.getElementById('predictSection').classList.remove('active');
+                document.getElementById('trainModeBtn').classList.add('active');
+                document.getElementById('predictModeBtn').classList.remove('active');
+                stopPredictCamera();
+            } else {
+                document.getElementById('trainSection').classList.remove('active');
+                document.getElementById('predictSection').classList.add('active');
+                document.getElementById('trainModeBtn').classList.remove('active');
+                document.getElementById('predictModeBtn').classList.add('active');
+                stopCamera();
+
+                if (classes.length < 2) {
+                    alert('Please train at least 2 classes before using prediction mode!');
+                    switchMode('train');
+                    return;
+                }
+
+                document.getElementById('predictCameraBtn').disabled = false;
+                document.getElementById('uploadPredictBtn').disabled = false;
+            }
+        }
+
+        // Add a new class
+        function addClass() {
+            const input = document.getElementById('classNameInput');
+            const className = input.value.trim();
+
+            if (!className) {
+                alert('Please enter a class name');
+                return;
+            }
+
+            if (classes.includes(className)) {
+                alert('This class already exists');
+                return;
+            }
+
+            classes.push(className);
+            trainingData[className] = [];
+            input.value = '';
+
+            renderClasses();
+        }
+
+        // Render classes list
+        function renderClasses() {
+            const classList = document.getElementById('classList');
+            classList.innerHTML = '';
+
+            classes.forEach((className, index) => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                if (selectedClass === className) {
+                    card.className += ' selected';
+                }
+
+                const sampleCount = trainingData[className].length;
+
+                card.innerHTML = `
+                    <div class="class-header">
+                        <span class="class-name">${className}</span>
+                        <span class="sample-count">${sampleCount} samples</span>
+                    </div>
+                    <div class="class-actions">
+                        <button class="btn btn-primary btn-small" onclick="selectClass('${className}')">
+                            ${selectedClass === className ? 'Selected' : 'Select'}
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="deleteClass('${className}')">
+                            Delete
+                        </button>
+                    </div>
+                    <div class="sample-thumbnails" id="thumbnails-${className}"></div>
+                `;
+
+                classList.appendChild(card);
+
+                // Render thumbnails
+                const thumbnailsDiv = document.getElementById(`thumbnails-${className}`);
+                trainingData[className].slice(-5).forEach(imgData => {
+                    const thumb = document.createElement('img');
+                    thumb.src = imgData;
+                    thumb.className = 'thumbnail';
+                    thumbnailsDiv.appendChild(thumb);
+                });
+            });
+        }
+
+        // Select a class for training
+        function selectClass(className) {
+            selectedClass = className;
+            document.getElementById('trainingInfo').classList.add('show');
+            document.getElementById('trainingInfo').innerHTML = `
+                <strong>Selected Class: ${className}</strong><br>
+                Use camera or upload images to add training samples
+            `;
+            renderClasses();
+        }
+
+        // Delete a class
+        function deleteClass(className) {
+            if (!confirm(`Delete class "${className}" and all its training data?`)) {
+                return;
+            }
+
+            classes = classes.filter(c => c !== className);
+            delete trainingData[className];
+
+            if (selectedClass === className) {
+                selectedClass = null;
+                document.getElementById('trainingInfo').classList.remove('show');
+            }
+
+            // Remove from classifier
+            const classIndex = classes.indexOf(className);
+            if (classIndex !== -1) {
+                try {
+                    classifier.clearClass(classIndex);
+                } catch (e) {
+                    // Class might not be in classifier yet
+                }
+            }
+
+            renderClasses();
+        }
+
+        // Start camera for training
+        async function startCamera() {
+            if (!selectedClass) {
+                alert('Please select a class first!');
+                return;
+            }
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+
+                const video = document.getElementById('videoPreview');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                document.getElementById('imagePreview').style.display = 'none';
+
+                document.getElementById('startCameraBtn').disabled = true;
+                document.getElementById('stopCameraBtn').disabled = false;
+                document.getElementById('addSampleBtn').disabled = false;
+            } catch (error) {
+                alert('Unable to access camera. Please check permissions.');
+                console.error('Camera error:', error);
+            }
+        }
+
+        // Stop training camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                document.getElementById('videoPreview').style.display = 'none';
+                document.getElementById('startCameraBtn').disabled = false;
+                document.getElementById('stopCameraBtn').disabled = true;
+                document.getElementById('addSampleBtn').disabled = true;
+            }
+        }
+
+        // Add training sample
+        async function addTrainingSample() {
+            if (!selectedClass) {
+                alert('Please select a class first!');
+                return;
+            }
+
+            const video = document.getElementById('videoPreview');
+            if (!video.srcObject) {
+                alert('Please start the camera first!');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const imgData = canvas.toDataURL('image/png');
+
+            // Create temp image element
+            const img = new Image();
+            img.src = imgData;
+            await new Promise(resolve => img.onload = resolve);
+
+            // Get embeddings from MobileNet
+            const activation = mobilenetModel.infer(img, true);
+            const classIndex = classes.indexOf(selectedClass);
+            classifier.addExample(activation, classIndex);
+
+            // Store image data
+            trainingData[selectedClass].push(imgData);
+
+            // Update UI
+            renderClasses();
+
+            document.getElementById('status').innerHTML = `Added sample to "${selectedClass}" (${trainingData[selectedClass].length} total)`;
+            document.getElementById('status').className = 'status training';
+        }
+
+        // Handle hold to add multiple samples
+        let holdInterval;
+        document.getElementById('addSampleBtn')?.addEventListener('mousedown', () => {
+            addTrainingSample();
+            holdInterval = setInterval(addTrainingSample, 500);
+        });
+        document.getElementById('addSampleBtn')?.addEventListener('mouseup', () => {
+            clearInterval(holdInterval);
+        });
+        document.getElementById('addSampleBtn')?.addEventListener('mouseleave', () => {
+            clearInterval(holdInterval);
+        });
+
+        // Handle file upload for training
+        document.getElementById('fileInput').addEventListener('change', async (event) => {
+            if (!selectedClass) {
+                alert('Please select a class first!');
+                event.target.value = '';
+                return;
+            }
+
+            const files = Array.from(event.target.files);
+
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const imgData = e.target.result;
+                    const img = new Image();
+                    img.src = imgData;
+
+                    await new Promise(resolve => img.onload = resolve);
+
+                    // Get embeddings
+                    const activation = mobilenetModel.infer(img, true);
+                    const classIndex = classes.indexOf(selectedClass);
+                    classifier.addExample(activation, classIndex);
+
+                    // Store image data
+                    trainingData[selectedClass].push(imgData);
+
+                    renderClasses();
+
+                    document.getElementById('status').innerHTML = `Added sample to "${selectedClass}" (${trainingData[selectedClass].length} total)`;
+                    document.getElementById('status').className = 'status training';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            event.target.value = '';
+        });
+
+        // PREDICTION MODE FUNCTIONS
+
+        // Start camera for prediction
+        async function startPredictCamera() {
+            try {
+                predictStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+
+                const video = document.getElementById('videoPredictPreview');
+                video.srcObject = predictStream;
+                video.style.display = 'block';
+                document.getElementById('imagePredictPreview').style.display = 'none';
+
+                document.getElementById('predictCameraBtn').disabled = true;
+                document.getElementById('stopPredictBtn').disabled = false;
+                document.getElementById('predictBtn').disabled = false;
+            } catch (error) {
+                alert('Unable to access camera. Please check permissions.');
+                console.error('Camera error:', error);
+            }
+        }
+
+        // Stop prediction camera
+        function stopPredictCamera() {
+            if (predictStream) {
+                predictStream.getTracks().forEach(track => track.stop());
+                document.getElementById('videoPredictPreview').style.display = 'none';
+                document.getElementById('predictCameraBtn').disabled = false;
+                document.getElementById('stopPredictBtn').disabled = true;
+                document.getElementById('predictBtn').disabled = true;
+            }
+        }
+
+        // Predict from camera
+        async function predictFromCamera() {
+            const video = document.getElementById('videoPredictPreview');
+            const canvas = document.getElementById('canvas');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const img = new Image();
+            img.src = canvas.toDataURL('image/png');
+
+            await new Promise(resolve => img.onload = resolve);
+
+            await predictImage(img);
+        }
+
+        // Handle file upload for prediction
+        document.getElementById('predictFileInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = document.getElementById('imagePredictPreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('videoPredictPreview').style.display = 'none';
+
+                    await new Promise(resolve => img.onload = resolve);
+
+                    await predictImage(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Predict image
+        async function predictImage(img) {
+            try {
+                document.getElementById('status').innerHTML = 'Analyzing image...';
+                document.getElementById('status').className = 'status loading';
+
+                const activation = mobilenetModel.infer(img, true);
+                const result = await classifier.predictClass(activation);
+
+                // Get all class confidences
+                const confidences = result.confidences;
+                const predictions = Object.keys(confidences).map(classIndex => ({
+                    className: classes[parseInt(classIndex)],
+                    probability: confidences[classIndex]
+                })).sort((a, b) => b.probability - a.probability);
+
+                displayResults(predictions);
+
+                document.getElementById('status').innerHTML = 'Classification complete!';
+                document.getElementById('status').className = 'status ready';
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Error classifying image. Make sure you have trained the model first.';
+                document.getElementById('status').className = 'status';
+                console.error('Classification error:', error);
+            }
+        }
+
+        // Display prediction results
+        function displayResults(predictions) {
+            const resultsDiv = document.getElementById('results');
+            const predictionsDiv = document.getElementById('predictions');
+
+            predictionsDiv.innerHTML = '';
+
+            predictions.forEach((prediction, index) => {
+                const percentage = (prediction.probability * 100).toFixed(1);
+
+                const predictionEl = document.createElement('div');
+                predictionEl.className = 'prediction';
+                predictionEl.innerHTML = `
+                    <span class="prediction-label">${index + 1}. ${prediction.className}</span>
+                    <span class="prediction-confidence">${percentage}%</span>
+                `;
+
+                predictionsDiv.appendChild(predictionEl);
+            });
+
+            resultsDiv.style.display = 'block';
+        }
+
+        // Load models on page load
+        loadModels();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+            stopPredictCamera();
+        });
+
+        // Press Enter to add class
+        document.getElementById('classNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addClass();
+            }
+        });
+    </script>
+</body>
+</html>
