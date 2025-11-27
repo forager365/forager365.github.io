@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier - Powered by TensorFlow.js</title>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    <!-- MobileNet Model -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #63408a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        #videoPreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .capture-controls {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+        }
+
+        .results-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .prediction {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .prediction-confidence {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .upload-section {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classifier</h1>
+        <p class="subtitle">Powered by TensorFlow.js & MobileNet</p>
+
+        <div id="status" class="status loading">
+            <div class="spinner" style="display: block;"></div>
+            Loading AI model...
+        </div>
+
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <ul>
+                <li>Click "Upload Image" to select a photo from your device</li>
+                <li>Or click "Use Camera" to take a photo with your webcam</li>
+                <li>The AI will automatically identify what's in the image</li>
+                <li>You'll see the top predictions with confidence scores</li>
+            </ul>
+        </div>
+
+        <div class="upload-section">
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" id="uploadBtn" disabled>
+                Upload Image
+            </button>
+            <input type="file" id="fileInput" accept="image/*">
+
+            <button class="btn btn-secondary" onclick="startCamera()" id="cameraBtn" disabled>
+                Use Camera
+            </button>
+        </div>
+
+        <div class="capture-controls" id="captureControls">
+            <button class="btn btn-primary" onclick="captureImage()">
+                Capture Photo
+            </button>
+            <button class="btn btn-secondary" onclick="stopCamera()">
+                Stop Camera
+            </button>
+        </div>
+
+        <div class="preview-section">
+            <img id="imagePreview" alt="Preview">
+            <video id="videoPreview" autoplay playsinline></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <div class="results-section" id="results">
+            <h2>Predictions:</h2>
+            <div id="predictions"></div>
+        </div>
+    </div>
+
+    <script>
+        let model;
+        let stream;
+
+        // Load the MobileNet model
+        async function loadModel() {
+            try {
+                model = await mobilenet.load();
+                document.getElementById('status').innerHTML = 'AI Model Ready! Choose an option below.';
+                document.getElementById('status').className = 'status ready';
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('cameraBtn').disabled = false;
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Error loading model. Please refresh the page.';
+                document.getElementById('status').className = 'status';
+                console.error('Error loading model:', error);
+            }
+        }
+
+        // Handle file upload
+        document.getElementById('fileInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                stopCamera();
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+
+                    // Wait for image to load
+                    img.onload = async () => {
+                        await classifyImage(img);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Start camera
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+
+                const video = document.getElementById('videoPreview');
+                const img = document.getElementById('imagePreview');
+
+                video.srcObject = stream;
+                video.style.display = 'block';
+                img.style.display = 'none';
+
+                document.getElementById('captureControls').style.display = 'block';
+                document.getElementById('results').style.display = 'none';
+            } catch (error) {
+                alert('Unable to access camera. Please check permissions.');
+                console.error('Camera error:', error);
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                document.getElementById('videoPreview').style.display = 'none';
+                document.getElementById('captureControls').style.display = 'none';
+            }
+        }
+
+        // Capture image from camera
+        function captureImage() {
+            const video = document.getElementById('videoPreview');
+            const canvas = document.getElementById('canvas');
+            const img = document.getElementById('imagePreview');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block';
+
+            stopCamera();
+
+            classifyImage(img);
+        }
+
+        // Classify the image
+        async function classifyImage(imageElement) {
+            try {
+                document.getElementById('status').innerHTML = 'Analyzing image...';
+                document.getElementById('status').className = 'status loading';
+
+                const predictions = await model.classify(imageElement);
+
+                displayResults(predictions);
+
+                document.getElementById('status').innerHTML = 'Classification complete!';
+                document.getElementById('status').className = 'status ready';
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Error classifying image.';
+                document.getElementById('status').className = 'status';
+                console.error('Classification error:', error);
+            }
+        }
+
+        // Display results
+        function displayResults(predictions) {
+            const resultsDiv = document.getElementById('results');
+            const predictionsDiv = document.getElementById('predictions');
+
+            predictionsDiv.innerHTML = '';
+
+            predictions.forEach((prediction, index) => {
+                const percentage = (prediction.probability * 100).toFixed(1);
+
+                const predictionEl = document.createElement('div');
+                predictionEl.className = 'prediction';
+                predictionEl.innerHTML = `
+                    <span class="prediction-label">${index + 1}. ${prediction.className}</span>
+                    <span class="prediction-confidence">${percentage}%</span>
+                `;
+
+                predictionsDiv.appendChild(predictionEl);
+            });
+
+            resultsDiv.style.display = 'block';
+        }
+
+        // Load model on page load
+        loadModel();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+        });
+    </script>
+</body>
+</html>
