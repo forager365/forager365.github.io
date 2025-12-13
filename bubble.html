@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Bubble Wrap - Ultimate Stress Relief</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            position: relative;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bubble-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .bubble-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 8px;
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .bubble {
+            aspect-ratio: 1;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset -5px -5px 10px rgba(0, 0, 0, 0.1),
+                inset 5px 5px 10px rgba(255, 255, 255, 0.5),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 30%;
+            height: 30%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9), transparent);
+            border-radius: 50%;
+        }
+
+        .bubble:hover:not(.popped) {
+            transform: scale(1.1);
+            box-shadow: 
+                inset -5px -5px 10px rgba(0, 0, 0, 0.15),
+                inset 5px 5px 10px rgba(255, 255, 255, 0.6),
+                0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .bubble.popped {
+            animation: pop 0.4s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        .ripple {
+            position: absolute;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: ripple-effect 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-effect {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-fly 0.8s ease-out forwards;
+        }
+
+        @keyframes particle-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .sound-wave {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: sound-wave 0.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes sound-wave {
+            0% {
+                width: 50px;
+                height: 50px;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+        .combo-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            animation: combo-pop 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes combo-pop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .settings-panel {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 200;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-toggle {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 150;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .setting-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .bubble-container {
+                grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+                gap: 6px;
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>
+                <div class="bubble-icon"></div>
+                Digital Bubble Wrap
+            </h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="popCount">0</span>
+                    <span class="stat-label">Popped</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="comboCount">0</span>
+                    <span class="stat-label">Combo</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="highScore">0</span>
+                    <span class="stat-label">High Score</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn-primary" onclick="resetBubbles()">New Sheet</button>
+                <button class="btn-secondary" onclick="toggleAutoPop()">Auto Pop: OFF</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="bubble-container" id="bubbleContainer"></div>
+    </main>
+
+    <div class="settings-toggle" onclick="toggleSettings()">
+        ⚙️
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <h2 style="margin-bottom: 1.5rem; color: #333;">Settings</h2>
+        
+        <div class="setting-item">
+            <label class="setting-label">Bubble Size</label>
+            <input type="range" class="slider" id="sizeSlider" min="40" max="80" value="60" onchange="updateBubbleSize(this.value)">
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Pop Sensitivity</label>
+            <input type="range" class="slider" id="sensitivitySlider" min="1" max="10" value="5">
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Sound Volume</label>
+            <input type="range" class="slider" id="volumeSlider" min="0" max="100" value="50">
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Bubble Color</label>
+            <select style="width: 100%; padding: 0.5rem; border-radius: 5px; border: 1px solid #ddd;" onchange="changeBubbleColor(this.value)">
+                <option value="default">Classic</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="ocean">Ocean</option>
+                <option value="sunset">Sunset</option>
+            </select>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Effects</label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="checkbox" id="particlesToggle" checked> Particles
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="checkbox" id="rippleToggle" checked> Ripples
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="checkbox" id="soundToggle" checked> Sound Effects
+            </label>
+        </div>
+    </div>
+
+    <script>
+        let popCount = 0;
+        let comboCount = 0;
+        let highScore = localStorage.getItem('bubbleHighScore') || 0;
+        let autoPopInterval = null;
+        let lastPopTime = 0;
+        let bubbleColorScheme = 'default';
+
+        // Initialize
+        document.getElementById('highScore').textContent = highScore;
+        createBubbles();
+
+        // Audio context for sound generation
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playPopSound(frequency = 800) {
+            if (!document.getElementById('soundToggle').checked) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            const volume = document.getElementById('volumeSlider').value / 100;
+            gainNode.gain.value = volume * 0.3;
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            container.innerHTML = '';
+            
+            const bubbleCount = window.innerWidth < 768 ? 80 : 120;
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.dataset.id = i;
+                
+                // Apply color scheme
+                if (bubbleColorScheme !== 'default') {
+                    applyColorScheme(bubble, i);
+                }
+                
+                bubble.addEventListener('click', (e) => popBubble(e, bubble));
+                bubble.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    popBubble(e, bubble);
+                });
+                
+                container.appendChild(bubble);
+            }
+        }
+
+        function applyColorScheme(bubble, index) {
+            const schemes = {
+                rainbow: () => `hsl(${(index * 3) % 360}, 70%, 60%)`,
+                ocean: () => `hsl(${180 + (index % 60)}, 70%, 60%)`,
+                sunset: () => `hsl(${(index % 60)}, 80%, 60%)`
+            };
+            
+            if (schemes[bubbleColorScheme]) {
+                const color = schemes[bubbleColorScheme]();
+                bubble.style.background = `radial-gradient(circle at 30% 30%, ${color}, ${color}88)`;
+            }
+        }
+
+        function popBubble(event, bubble) {
+            if (bubble.classList.contains('popped')) return;
+            
+            bubble.classList.add('popped');
+            
+            // Update stats
+            popCount++;
+            document.getElementById('popCount').textContent = popCount;
+            
+            // Combo system
+            const currentTime = Date.now();
+            if (currentTime - lastPopTime < 500) {
+                comboCount++;
+                document.getElementById('comboCount').textContent = comboCount;
+                
+                if (comboCount > 0 && comboCount % 10 === 0) {
+                    showCombo(comboCount);
+                }
+            } else {
+                comboCount = 1;
+                document.getElementById('comboCount').textContent = comboCount;
+            }
+            lastPopTime = currentTime;
+            
+            // Update high score
+            if (popCount > highScore) {
+                highScore = popCount;
+                localStorage.setItem('bubbleHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+            }
+            
+            // Visual effects
+            if (document.getElementById('rippleToggle').checked) {
+                createRipple(event.pageX, event.pageY);
+            }
+            
+            if (document.getElementById('particlesToggle').checked) {
+                createParticles(event.pageX, event.pageY);
+            }
+            
+            // Sound effect with varying pitch
+            const baseFreq = 800;
+            const variation = Math.random() * 200 - 100;
+            playPopSound(baseFreq + variation);
+            
+            // Check if all bubbles are popped
+            setTimeout(() => {
+                const remainingBubbles = document.querySelectorAll('.bubble:not(.popped)').length;
+                if (remainingBubbles === 0) {
+                    showCompletionMessage();
+                }
+            }, 500);
+        }
+
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = x - 50 + 'px';
+            ripple.style.top = y - 50 + 'px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        function createParticles(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                const angle = (Math.PI * 2 * i) / 8;
+                const distance = 50 + Math.random() * 50;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+        }
+
+        function showCombo(combo) {
+            const indicator = document.createElement('div');
+            indicator.className = 'combo-indicator';
+            indicator.textContent = `${combo} COMBO!`;
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => indicator.remove(), 1000);
+        }
+
+        function showCompletionMessage() {
+            const message = document.createElement('div');
+            message.className = 'combo-indicator';
+            message.textContent = '🎉 PERFECT! 🎉';
+            message.style.fontSize = '4rem';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+                resetBubbles();
+            }, 2000);
+        }
+
+        function resetBubbles() {
+            createBubbles();
+            comboCount = 0;
+            document.getElementById('comboCount').textContent = comboCount;
+        }
+
+        function toggleAutoPop() {
+            const button = event.target;
+            if (autoPopInterval) {
+                clearInterval(autoPopInterval);
+                autoPopInterval = null;
+                button.textContent = 'Auto Pop: OFF';
+            } else {
+                autoPopInterval = setInterval(() => {
+                    const unpoppedBubbles = document.querySelectorAll('.bubble:not(.popped)');
+                    if (unpoppedBubbles.length > 0) {
+                        const randomBubble = unpoppedBubbles[Math.floor(Math.random() * unpoppedBubbles.length)];
+                        const rect = randomBubble.getBoundingClientRect();
+                        const event = {
+                            pageX: rect.left + rect.width / 2,
+                            pageY: rect.top + rect.height / 2
+                        };
+                        popBubble(event, randomBubble);
+                    } else {
+                        clearInterval(autoPopInterval);
+                        autoPopInterval = null;
+                        document.querySelector('.btn-secondary').textContent = 'Auto Pop: OFF';
+                    }
+                }, 100);
+                button.textContent = 'Auto Pop: ON';
+            }
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
+        function updateBubbleSize(size) {
+            const bubbles = document.querySelectorAll('.bubble');
+            bubbles.forEach(bubble => {
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+            });
+        }
+
+        function changeBubbleColor(scheme) {
+            bubbleColorScheme = scheme;
+            createBubbles();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                resetBubbles();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoPop();
+            }
+        });
+
+        // Prevent context menu on long press for mobile
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.classList.contains('bubble')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
