@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiger Studio for PGLite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        #resizer {
+            width: 5px;
+            cursor: col-resize;
+            background-color: #e2e8f0;
+            transition: background-color 0.2s;
+            z-index: 50; /* Ensure it sits above content */
+        }
+        #resizer:hover, #resizer.active {
+            background-color: #3b82f6; /* Blue on hover/active */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col font-sans text-slate-900 overflow-hidden select-none">
+
+<header class="bg-slate-900 text-white p-3 px-4 shadow-lg flex justify-between items-center z-10 shrink-0">
+    <div class="flex items-center gap-3">
+        <div class="bg-blue-600 p-1.5 rounded flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+        </div>
+        <div>
+            <h1 class="font-bold text-lg leading-tight">Tiger Studio fo PGlite</h1>
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+                <span id="status-text">Initializing...</span>
+                <div id="status-indicator" class="w-2 h-2 rounded-full bg-yellow-500"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-2">
+        <button onclick="resetDB()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded text-sm font-medium border border-red-700">
+            Reset DB
+        </button>
+        <input type="file" id="csv-upload" accept=".csv" class="hidden" />
+        <button onclick="document.getElementById('csv-upload').click()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 border border-slate-600 transition">
+            Import CSV
+        </button>
+        <button onclick="window.downloadCSV()" id="csv-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 border border-slate-600 transition opacity-50 cursor-not-allowed" disabled>
+            Export Result
+        </button>
+        <button onclick="window.runQuery()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition transform active:scale-95">
+            <div id="loader" class="loader"></div>
+            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <span>Run</span>
+        </button>
+    </div>
+</header>
+
+<main class="flex-1 flex overflow-hidden" id="main-container">
+
+    <div id="left-pane" class="flex flex-col min-w-[200px]" style="width: 40%;">
+        <div id="editor-container" class="flex-1 w-full bg-[#1e1e1e]"></div>
+        <div id="error-msg" class="bg-red-50 text-red-700 px-4 py-2 text-xs font-mono border-t border-red-200 hidden"></div>
+    </div>
+
+    <div id="resizer"></div>
+
+    <div id="right-pane" class="flex-1 flex flex-col bg-white min-w-[200px]">
+        <div class="p-2 border-b border-slate-200 bg-slate-50 flex justify-between items-center h-10 shrink-0">
+            <h2 class="font-semibold text-slate-700 text-xs uppercase tracking-wide">Query Results</h2>
+            <span id="row-count" class="text-xs text-slate-500 font-mono"></span>
+        </div>
+        <div class="flex-1 overflow-auto relative" id="grid-container">
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                <p class="text-sm">Results will appear here</p>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+<script>
+    window.monacoReady = new Promise((resolve) => {
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            const editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: [
+                    '-- Welcome to Tiger Studio for PgLite!',
+                    '-- Data is persisted in IndexedDB pglite-tiger-db',
+                    '-- Query the sample table:',
+                    '',
+                    'SELECT * FROM sample_data;'
+                ].join('\n'),
+                language: 'sql',
+                theme: 'vs-dark',
+                automaticLayout: true, // Auto-resizes with container
+                minimap: { enabled: false },
+                fontSize: 14,
+                padding: { top: 20 }
+            });
+            resolve(editor);
+        });
+    });
+</script>
+
+<script type="module">
+    import { PGlite } from "https://cdn.jsdelivr.net/npm/@electric-sql/pglite/dist/index.js";
+
+    // Global Variables
+    let db;
+    let editorInstance;
+    let lastResult = null;
+
+    const statusDot = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    const errorMsg = document.getElementById('error-msg');
+    const gridContainer = document.getElementById('grid-container');
+    const loader = document.getElementById('loader');
+    const playIcon = document.getElementById('play-icon');
+    const csvBtn = document.getElementById('csv-btn');
+    const csvInput = document.getElementById('csv-upload');
+
+    const resizer = document.getElementById('resizer');
+    const leftPane = document.getElementById('left-pane');
+    const editorContainer = document.getElementById('editor-container');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        resizer.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        // Disable pointer events on editor to avoid selection while dragging
+        editorContainer.style.pointerEvents = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        // Calculate percentage based on mouse X position
+        const newWidthPercent = (e.clientX / window.innerWidth) * 100;
+
+        // Constrain between 10% and 90%
+        if (newWidthPercent > 10 && newWidthPercent < 90) {
+            leftPane.style.width = `${newWidthPercent}%`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            resizer.classList.remove('active');
+            document.body.style.cursor = 'default';
+            editorContainer.style.pointerEvents = 'auto';
+
+            if(editorInstance) editorInstance.layout();
+        }
+    });
+
+    // Init App
+    async function init() {
+        try {
+            editorInstance = await window.monacoReady;
+            db = await PGlite.create("idb://pglite-tiger-db");
+
+            statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
+            statusText.innerText = "Ready";
+
+            // CHANGED: Only create the table structure.
+            // We REMOVED the 'INSERT' statement from here.
+            await db.exec(`
+                    CREATE TABLE IF NOT EXISTS sample_data (
+                        id SERIAL PRIMARY KEY,
+                        name TEXT,
+                        value INT,
+                        xid uuid DEFAULT gen_random_uuid()
+                    );
+                `);
+
+            // OPTIONAL: Check if the table is empty to show a helpful message
+            const result = await db.exec("SELECT count(*) FROM sample_data");
+            const count = result[0].rows[0].count;
+
+            if (count == 0) {
+                console.log("Database is fresh and empty.");
+                // Update editor to show the insert command so the user can run it manually if they want
+                editorInstance.setValue([
+                    '-- Database was reset. Table is empty.',
+                    '-- Run this to generate sample data:',
+                    '',
+                    'INSERT INTO sample_data (name, value)',
+                    "SELECT 'Item ' || g, (random()*100)::int",
+                    'FROM generate_series(1, 5) g;',
+                    '',
+                    '-- Or check results:',
+                    'SELECT * FROM sample_data;'
+                ].join('\n'));
+            } else {
+                // If data exists, just show it
+                window.runQuery();
+            }
+
+        } catch (err) {
+            console.error("Init failed:", err);
+            statusText.innerText = "Error";
+            statusDot.classList.replace('bg-yellow-500', 'bg-red-500');
+        }
+    }
+
+    window.runQuery = async () => {
+        if (!db || !editorInstance) return;
+        const sql = editorInstance.getValue();
+        if (!sql.trim()) return;
+
+        loader.style.display = 'block';
+        playIcon.style.display = 'none';
+        errorMsg.classList.add('hidden');
+        gridContainer.innerHTML = '';
+        csvBtn.disabled = true;
+        csvBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        try {
+            const start = performance.now();
+            const results = await db.exec(sql);
+            const end = performance.now();
+
+            const finalResult = Array.isArray(results) ? results[results.length - 1] : results;
+            lastResult = finalResult;
+
+            renderGrid(finalResult, end - start);
+
+            if (finalResult.rows && finalResult.rows.length > 0) {
+                csvBtn.disabled = false;
+                csvBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        } catch (err) {
+            errorMsg.innerText = "Error: " + err.message;
+            errorMsg.classList.remove('hidden');
+            gridContainer.innerHTML = `<div class="p-4 text-red-500 text-sm">Query Failed</div>`;
+        } finally {
+            loader.style.display = 'none';
+            playIcon.style.display = 'block';
+        }
+    };
+
+    function renderGrid(result, timeTaken) {
+        const rows = result.rows || [];
+        const fields = result.fields || [];
+
+        document.getElementById('row-count').innerText = `${rows.length} rows (${Math.round(timeTaken)}ms)`;
+
+        if (rows.length === 0) {
+            gridContainer.innerHTML = `<div class="p-4 text-slate-500 text-sm italic">Command executed successfully. No return data.</div>`;
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = "w-full text-left border-collapse";
+
+        const thead = document.createElement('thead');
+        thead.className = "bg-slate-100 sticky top-0 shadow-sm z-10";
+        const trHead = document.createElement('tr');
+        fields.forEach(f => {
+            const th = document.createElement('th');
+            th.className = "px-4 py-2 text-xs font-bold text-slate-600 uppercase border-b border-slate-300 whitespace-nowrap";
+            th.innerText = f.name;
+            trHead.appendChild(th);
+        });
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        tbody.className = "text-sm text-slate-700 font-mono";
+        rows.forEach((row, i) => {
+            const tr = document.createElement('tr');
+            tr.className = i % 2 === 0 ? "bg-white hover:bg-blue-50" : "bg-slate-50 hover:bg-blue-50";
+            fields.forEach(f => {
+                const td = document.createElement('td');
+                td.className = "px-4 py-1.5 border-b border-slate-200 whitespace-nowrap max-w-xs overflow-hidden text-ellipsis";
+                td.innerText = row[f.name] === null ? 'NULL' : row[f.name];
+                td.title = row[f.name];
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        gridContainer.appendChild(table);
+    }
+
+    window.downloadCSV = () => {
+        if (!lastResult || !lastResult.rows || !lastResult.rows.length) return;
+        const fields = lastResult.fields.map(f => f.name);
+        const csv = Papa.unparse({ fields: fields, data: lastResult.rows.map(r => fields.map(f => r[f])) });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `export_${Date.now()}.csv`;
+        link.click();
+    };
+
+    // Import CSV
+    csvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const tableName = file.name.split('.')[0].replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async (results) => {
+                const headers = results.meta.fields;
+                const rows = results.data;
+                if (!headers || headers.length === 0) return alert("Empty CSV");
+
+                const safeHeaders = headers.map(h => `"${h.trim()}" TEXT`);
+                const columnNames = headers.map(h => `"${h.trim()}"`);
+                const createTableSQL = `DROP TABLE IF EXISTS ${tableName}; CREATE TABLE ${tableName} (${safeHeaders.join(', ')});`;
+
+                try {
+                    statusText.innerText = "Importing...";
+                    await db.exec(createTableSQL);
+
+                    const CHUNK_SIZE = 500;
+                    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+                        const chunk = rows.slice(i, i + CHUNK_SIZE);
+                        const values = chunk.map(row => {
+                            const rowValues = headers.map(h => {
+                                let val = row[h];
+                                if (val === null || val === undefined) return 'NULL';
+                                return `'${String(val).replace(/'/g, "''")}'`;
+                            }).join(', ');
+                            return `(${values})`;
+                        }).join(', ');
+                        await db.exec(`INSERT INTO ${tableName} (${columnNames.join(',')}) VALUES ${values};`);
+                    }
+                    statusText.innerText = "Ready";
+                    const currentVal = editorInstance.getValue();
+                    editorInstance.setValue(`-- Table '${tableName}' imported.\nSELECT * FROM ${tableName} LIMIT 100;\n\n${currentVal}`);
+                    window.runQuery();
+                } catch (err) {
+                    console.error(err);
+                    alert("Import failed: " + err.message);
+                    statusText.innerText = "Import Error";
+                }
+                csvInput.value = '';
+            }
+        });
+    });
+    window.resetDB = async () => {
+        if (!confirm("This will wipe all data and reload. Are you sure?")) return;
+
+        try {
+            // 1. Close the active PGlite connection
+            if (db) {
+                console.log("Closing active database connection...");
+                await db.close();
+                db = null;
+            }
+
+            // Small delay to ensure connection is fully closed
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 2. Try deleting with common PGlite naming patterns
+            const possibleNames = [
+                '/pglite/pglite-tiger-db',
+                'pglite-tiger-db',
+                '/pglite-tiger-db',
+                'idb://pglite-tiger-db'
+            ];
+
+            let deleted = false;
+            for (const dbName of possibleNames) {
+                try {
+                    console.log("Attempting to delete:", dbName);
+                    await new Promise((resolve, reject) => {
+                        const req = indexedDB.deleteDatabase(dbName);
+
+                        req.onsuccess = () => {
+                            console.log("Successfully deleted:", dbName);
+                            deleted = true;
+                            resolve();
+                        };
+
+                        req.onerror = () => {
+                            console.log("Failed to delete:", dbName);
+                            resolve(); // Continue to next name
+                        };
+
+                        req.onblocked = () => {
+                            console.warn("Delete blocked for:", dbName);
+                            reject(new Error("Database deletion blocked"));
+                        };
+                    });
+                } catch (e) {
+                    console.log("Error with", dbName, ":", e.message);
+                }
+            }
+
+            console.log("Database reset complete, reloading...");
+            window.location.reload();
+
+        } catch (err) {
+            console.error("Failed during reset:", err);
+            alert("Reset failed: " + err.message + ". Please close all other tabs and try again.");
+        }
+    };
+
+    init();
+</script>
+</body>
+</html>
