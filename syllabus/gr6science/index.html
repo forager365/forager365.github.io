@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Integrated Lesson Plans - Grade 6 Science</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-light: #e8f0fe;
+      --accent: #34a853;
+      --accent-light: #e6f4ea;
+      --surface: #ffffff;
+      --bg: #f8f9fa;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --border: #dadce0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+      --nav-width: 300px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+    }
+
+    /* --- Sidebar Navigation --- */
+    .sidebar {
+      width: var(--nav-width);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(calc(-1 * var(--nav-width)));
+    }
+
+    .sidebar-header {
+      background: linear-gradient(135deg, var(--primary), #1557b0);
+      color: #fff;
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      cursor: pointer;
+    }
+
+    .sidebar-header .close-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .sidebar-header .close-btn:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
+    .nav-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+      padding: 8px 0;
+    }
+
+    .nav-list li a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .nav-list li a:hover {
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-list li a.active {
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-list li a .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .nav-home {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-home:hover {
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-home.active {
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-home .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* --- Toggle Button (visible when sidebar collapsed) --- */
+    .nav-toggle {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .nav-toggle.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+
+    /* --- Main Content --- */
+    .main {
+      flex: 1;
+      margin-left: var(--nav-width);
+      transition: margin-left 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .main.expanded {
+      margin-left: 0;
+    }
+
+    /* --- TOC View --- */
+    .toc-view {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .toc-view.hidden {
+      display: none;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--primary), #1557b0);
+      color: #fff;
+      padding: 48px 40px 40px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 1.05rem;
+      opacity: 0.9;
+    }
+
+    .toc-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .toc-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .toc-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toc-card .card-top {
+      background: var(--primary-light);
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .toc-card .card-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .toc-card .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .toc-card .card-bottom {
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toc-card .card-bottom .arrow {
+      margin-left: auto;
+      color: var(--primary);
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+
+    .toc-card:hover .card-bottom .arrow {
+      transform: translateX(4px);
+    }
+
+    /* --- Lesson Iframe --- */
+    .lesson-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .lesson-frame.hidden {
+      display: none;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(calc(-1 * var(--nav-width)));
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .nav-toggle {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+      }
+      .main {
+        margin-left: 0;
+      }
+      .page-header {
+        padding: 36px 20px 30px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+      .toc-container {
+        padding: 24px 16px 40px;
+      }
+    }
+
+    /* Overlay for mobile */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 90;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hamburger Toggle -->
+  <button class="nav-toggle hidden" id="navToggle" aria-label="Open navigation">&#9776;</button>
+
+  <!-- Overlay for mobile -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 id="headerHome">Grade 6 Science</h2>
+      <button class="close-btn" id="navClose" aria-label="Close navigation">&times;</button>
+    </div>
+    <a class="nav-home active" id="navHome"><span class="nav-icon">&#8962;</span> Table of Contents</a>
+    <ul class="nav-list" id="navList">
+      <li><a data-href="living-organisms.html"><span class="nav-num">1</span>The Living Organisms</a></li>
+      <li><a data-href="body-movements.html"><span class="nav-num">2</span>Body Movements</a></li>
+      <li><a data-href="light-shadows-reflections.html"><span class="nav-num">3</span>Light, Shadows &amp; Reflections</a></li>
+      <li><a data-href="fun-with-magnets-ch8.html"><span class="nav-num">4</span>Fun with Magnets (Ch 8)</a></li>
+      <li><a data-href="electricity-circuits.html"><span class="nav-num">5</span>Electricity and Circuits</a></li>
+      <li><a data-href="getting-to-know-plants.html"><span class="nav-num">6</span>Getting to Know Plants</a></li>
+      <li><a data-href="water.html"><span class="nav-num">7</span>Water</a></li>
+      <li><a data-href="motion-measurement.html"><span class="nav-num">8</span>Motion &amp; Measurement</a></li>
+      <li><a data-href="changes-around-us.html"><span class="nav-num">9</span>Changes Around Us</a></li>
+      <li><a data-href="motion-measurement-ch10.html"><span class="nav-num">10</span>Motion &amp; Measurement (Ch 10)</a></li>
+      <li><a data-href="separation-of-substances.html"><span class="nav-num">11</span>Separation of Substances</a></li>
+      <li><a data-href="fun-with-magnets-ch13.html"><span class="nav-num">12</span>Fun with Magnets (Ch 13)</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main" id="main">
+    <!-- Default TOC View -->
+    <div class="toc-view" id="tocView">
+      <div class="page-header">
+        <h1>AI Integrated Lesson Plans</h1>
+        <p>Grade 6 &mdash; Science</p>
+      </div>
+
+      <div class="toc-container">
+        <div class="toc-grid">
+
+          <a class="toc-card" data-href="living-organisms.html">
+            <div class="card-top"><span class="card-num">1</span><span class="card-title">The Living Organisms &mdash; Characteristics &amp; Habitats</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="body-movements.html">
+            <div class="card-top"><span class="card-num">2</span><span class="card-title">Body Movements</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="light-shadows-reflections.html">
+            <div class="card-top"><span class="card-num">3</span><span class="card-title">Light, Shadows and Reflections</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="fun-with-magnets-ch8.html">
+            <div class="card-top"><span class="card-num">4</span><span class="card-title">Fun with Magnets (Ch 8)</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="electricity-circuits.html">
+            <div class="card-top"><span class="card-num">5</span><span class="card-title">Electricity and Circuits</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="getting-to-know-plants.html">
+            <div class="card-top"><span class="card-num">6</span><span class="card-title">Getting to Know Plants</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="water.html">
+            <div class="card-top"><span class="card-num">7</span><span class="card-title">Water</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="motion-measurement.html">
+            <div class="card-top"><span class="card-num">8</span><span class="card-title">Motion and Measurement of Distances</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="changes-around-us.html">
+            <div class="card-top"><span class="card-num">9</span><span class="card-title">Changes Around Us</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="motion-measurement-ch10.html">
+            <div class="card-top"><span class="card-num">10</span><span class="card-title">Motion and Measurement of Distances (Ch 10)</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="separation-of-substances.html">
+            <div class="card-top"><span class="card-num">11</span><span class="card-title">Separation of Substances</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+          <a class="toc-card" data-href="fun-with-magnets-ch13.html">
+            <div class="card-top"><span class="card-num">12</span><span class="card-title">Fun with Magnets (Ch 13)</span></div>
+            <div class="card-bottom">Open lesson <span class="arrow">&rarr;</span></div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson iframe (hidden by default) -->
+    <iframe class="lesson-frame hidden" id="lessonFrame"></iframe>
+  </main>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+    const toggle = document.getElementById('navToggle');
+    const closeBtn = document.getElementById('navClose');
+    const overlay = document.getElementById('overlay');
+    const tocView = document.getElementById('tocView');
+    const lessonFrame = document.getElementById('lessonFrame');
+    const navHome = document.getElementById('navHome');
+    const headerHome = document.getElementById('headerHome');
+    const navLinks = document.querySelectorAll('#navList a[data-href]');
+    const tocCards = document.querySelectorAll('.toc-card[data-href]');
+
+    const isMobile = () => window.innerWidth <= 768;
+
+    function closeSidebar() {
+      if (isMobile()) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      } else {
+        sidebar.classList.add('collapsed');
+        main.classList.add('expanded');
+        toggle.classList.remove('hidden');
+      }
+    }
+
+    function openSidebar() {
+      if (isMobile()) {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+      } else {
+        sidebar.classList.remove('collapsed');
+        main.classList.remove('expanded');
+        toggle.classList.add('hidden');
+      }
+    }
+
+    function clearActiveLinks() {
+      navLinks.forEach(l => l.classList.remove('active'));
+      navHome.classList.remove('active');
+    }
+
+    function showTOC() {
+      clearActiveLinks();
+      navHome.classList.add('active');
+      tocView.classList.remove('hidden');
+      lessonFrame.classList.add('hidden');
+      lessonFrame.src = '';
+      if (isMobile()) closeSidebar();
+    }
+
+    function loadLesson(href) {
+      clearActiveLinks();
+      // Highlight matching sidebar link
+      navLinks.forEach(l => {
+        if (l.getAttribute('data-href') === href) l.classList.add('active');
+      });
+      tocView.classList.add('hidden');
+      lessonFrame.classList.remove('hidden');
+      lessonFrame.src = href;
+      if (isMobile()) closeSidebar();
+    }
+
+    // Sidebar nav links
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadLesson(link.getAttribute('data-href'));
+      });
+    });
+
+    // TOC card links
+    tocCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadLesson(card.getAttribute('data-href'));
+      });
+    });
+
+    // Home links
+    navHome.addEventListener('click', showTOC);
+    headerHome.addEventListener('click', showTOC);
+
+    // Sidebar toggle
+    closeBtn.addEventListener('click', closeSidebar);
+    toggle.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      }
+    });
+  </script>
+
+</body>
+</html>

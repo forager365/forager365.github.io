@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Curriculum Roadmap</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Page Specific Accordion Styles */
+        :root {
+            --excite: #3b82f6;
+            /* Blue */
+            --relate: #8b5cf6;
+            /* Purple */
+            --purpose: #10b981;
+            /* Green */
+            --possibilities: #f59e0b;
+            /* Orange */
+            --ethics: #e11d48;
+            /* Rose/Red for Ethics */
+            --card-bg: #ffffff;
+        }
+
+        /* Accordion Structure */
+        .accordion-section {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            background: transparent;
+        }
+
+        /* Clickable Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 10px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .section-header:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            /* Slight darken on hover */
+        }
+
+        .section-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-grow: 1;
+        }
+
+        /* Chevron Icon */
+        .chevron {
+            transition: transform 0.3s ease;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .active .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Collapsible Body */
+        .section-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+            padding: 0 10px;
+        }
+
+        .active .section-body {
+            opacity: 1;
+        }
+
+        /* Card Layout */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Side: Content */
+        .card-content {
+            padding: 25px;
+            flex: 2;
+            border-left: 6px solid transparent;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-title {
+            margin: 0 0 10px 0;
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
+        .card-desc {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Right Side: Outcomes */
+        .card-outcome {
+            flex: 1;
+            background-color: #f1f5f9;
+            padding: 25px;
+            border-left: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .outcome-label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .outcome-text {
+            font-size: 0.9rem;
+            color: #475569;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Lists within cards */
+        .game-list,
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+
+        .game-list li,
+        .bullet-list li {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .game-icon {
+            font-size: 1.1rem;
+        }
+
+        .bullet {
+            color: var(--text-color);
+            margin-right: 5px;
+        }
+
+        /* Specific Color Themes */
+        .theme-excite .card-content {
+            border-left-color: var(--excite);
+        }
+
+        .theme-excite .tag {
+            background: #eff6ff;
+            color: var(--excite);
+        }
+
+        .theme-excite .section-badge {
+            background: var(--excite);
+        }
+
+        .theme-relate .card-content {
+            border-left-color: var(--relate);
+        }
+
+        .theme-relate .tag {
+            background: #f5f3ff;
+            color: var(--relate);
+        }
+
+        .theme-relate .section-badge {
+            background: var(--relate);
+        }
+
+        .theme-purpose .card-content {
+            border-left-color: var(--purpose);
+        }
+
+        .theme-purpose .tag {
+            background: #ecfdf5;
+            color: var(--purpose);
+        }
+
+        .theme-purpose .section-badge {
+            background: var(--purpose);
+        }
+
+        .theme-possibilities .card-content {
+            border-left-color: var(--possibilities);
+        }
+
+        .theme-possibilities .tag {
+            background: #fffbeb;
+            color: var(--possibilities);
+        }
+
+        .theme-possibilities .section-badge {
+            background: var(--possibilities);
+        }
+
+        /* New Theme: AI Ethics */
+        .theme-ethics .card-content {
+            border-left-color: var(--ethics);
+        }
+
+        .theme-ethics .tag {
+            background: #ffe4e6;
+            color: var(--ethics);
+        }
+
+        .theme-ethics .section-badge {
+            background: var(--ethics);
+        }
+
+
+        /* Mobile Response */
+        @media (max-width: 768px) {
+            .card {
+                flex-direction: column;
+            }
+
+            .card-outcome {
+                border-left: none;
+                border-top: 1px solid #e2e8f0;
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">AI Course</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="ai-course.html">Course Objectives</a></li>
+            <li class="nav-item"><a href="unit-distribution.html">Unit Distribution</a></li>
+            <li class="nav-item"><a href="course-outline.html" class="active">Course Outline</a></li>
+            <li class="nav-item"><a href="ai_project_cycle.html">AI Project Cycle</a></li>
+            <li class="nav-item"><a href="neural_network.html">Neural Networks</a></li>
+            <li class="nav-item"><a href="python_module.html">Beginning Python</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <button class="toggle-btn" id="sidebarToggle">☰</button>
+            <div class="page-title">Course Outline</div>
+        </div>
+
+        <div class="content-scroll-area">
+            <div class="container">
+                <header style="text-align: center; margin-bottom: 50px;">
+                    <h1
+                        style="font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(90deg, var(--excite), var(--ethics)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        AI Learning Journey</h1>
+                    <div class="subtitle" style="font-size: 1.2rem; color: var(--text-color);">Session Plan & Learning
+                        Outcomes</div>
+                </header>
+
+                <div class="accordion-section theme-excite" id="section-1">
+                    <div class="section-header" onclick="toggleSection('section-1')">
+                        <div class="section-badge">1</div>
+                        <div class="section-title">Excite</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">Introduction to AI</h3>
+                                <p class="card-desc">Setting up the context of the curriculum and introducing the
+                                    fundamentals.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To identify and appreciate Artificial Intelligence and describe
+                                    its applications in daily life.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Ice Breaker Activity</span>
+                                <h3 class="card-title">Dream Smart Home</h3>
+                                <p class="card-desc">Learners design a rough layout or floor plan of their dream smart
+                                    home.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Creative application of AI concepts to visualize daily life
+                                    enhancements.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">The AI Games</h3>
+                                <p class="card-desc">Learners participate in games based on different AI domains:</p>
+                                <ul class="game-list">
+                                    <li><span class="game-icon">✂️</span> <strong>Rock, Paper, Scissors:</strong> Data
+                                        Domain</li>
+                                    <li><span class="game-icon">🔮</span> <strong>Mystery Animal:</strong> NLP Domain
+                                    </li>
+                                    <li><span class="game-icon">📸</span> <strong>Emoji Scavenger Hunt:</strong>
+                                        Computer Vision Domain</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To relate, apply and reflect on Human-Machine Interactions. To
+                                    identify and interact with the three domains of AI.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Assessment</span>
+                                <h3 class="card-title">AI Quiz</h3>
+                                <p class="card-desc">Paper-Pen or Online Quiz.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To undergo an assessment for analyzing progress towards acquired
+                                    AI-Readiness skills.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Letter to Future Self</h3>
+                                <p class="card-desc">Writing a letter to one's self keeping the future in context.
+                                    Describing what they have learnt or hope to learn.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To imagine, examine and reflect on the skills required for
+                                    futuristic job opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-relate" id="section-2">
+                    <div class="section-header" onclick="toggleSection('section-2')">
+                        <div class="section-badge">2</div>
+                        <div class="section-title">Relate</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Video Session</span>
+                                <h3 class="card-title">Smart Cities & Homes</h3>
+                                <p class="card-desc">Video introducing the concept of Smart Cities, Smart Schools, and
+                                    Smart Homes.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Learners to relate to the application of Artificial Intelligence
+                                    in their daily lives.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Write an Interactive Story</h3>
+                                <p class="card-desc">Draw a floor plan of a Home/School/City and write an interactive
+                                    story around it using the <strong>Story Speaker</strong> extension.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To unleash imagination towards smart homes, build interactive
+                                    stories, and reflect on Human-Machine Interactions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-purpose" id="section-3">
+                    <div class="section-header" onclick="toggleSection('section-3')">
+                        <div class="section-badge">3</div>
+                        <div class="section-title">Purpose</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">Sustainable Development Goals</h3>
+                                <p class="card-desc">Introduction to SDGs and their relationship with AI.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To understand the impact of AI on Sustainable Development Goals
+                                    to develop responsible citizenship.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Go Goals Board Game</h3>
+                                <p class="card-desc">Learners answer questions specifically related to Sustainable
+                                    Development Goals.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Reinforcement of SDG concepts through gamified learning.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-possibilities" id="section-4">
+                    <div class="section-header" onclick="toggleSection('section-4')">
+                        <div class="section-badge">4</div>
+                        <div class="section-title">Possibilities</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Research Session</span>
+                                <h3 class="card-title">Theme-based Case Studies</h3>
+                                <p class="card-desc">Listening to case studies of inspiring startups/companies using AI.
+                                    Learners research present trends and visualize the future of their allotted theme.
+                                </p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To research and develop awareness of skills required for jobs of
+                                    the future.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Job Ad Creation</h3>
+                                <p class="card-desc">Create a job advertisement describing the nature of a job and
+                                    skillset required 10 years down the line, predicting how AI will transform it.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To develop effective communication and collaborative work skills
+                                    while reflecting on future opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-ethics" id="section-5">
+                    <div class="section-header" onclick="toggleSection('section-5')">
+                        <div class="section-badge">5</div>
+                        <div class="section-title">AI Ethics</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Video Session</span>
+                                <h3 class="card-title">Discussing about AI Ethics</h3>
+                                <p class="card-desc">Watching a video and discussing key ethical concepts in Artificial
+                                    Intelligence.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To understand and reflect on the ethical issues around AI.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">Ethics Awareness</h3>
+                                <p class="card-desc">Role-playing activity where students act as major stakeholders to
+                                    decide what is ethical/unethical in a given scenario.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To understand and reflect on the ethical issues around AI.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">AI Bias and AI Access</h3>
+                                <ul class="bullet-list">
+                                    <li>Discussing possible bias in data collection.</li>
+                                    <li>Discussing the implications of AI technology.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To gain awareness around AI bias and AI access.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">Balloon Debate</h3>
+                                <p class="card-desc">Students divide into teams (Affirmative vs. Against) on the same
+                                    theme to debate why AI is beneficial or harmful to society.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To let the students analyze the advantages and disadvantages of
+                                    Artificial Intelligence.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const body = section.querySelector('.section-body');
+            const isActive = section.classList.contains('active');
+
+            if (isActive) {
+                section.classList.remove('active');
+                body.style.maxHeight = null;
+            } else {
+                section.classList.add('active');
+                body.style.maxHeight = body.scrollHeight + "px";
+            }
+        }
+
+        // Initialize: Open the first section by default
+        document.addEventListener("DOMContentLoaded", function () {
+            const firstSection = document.getElementById('section-1');
+            if (firstSection) {
+                firstSection.classList.add('active');
+                const firstBody = firstSection.querySelector('.section-body');
+                firstBody.style.maxHeight = firstBody.scrollHeight + "px";
+            }
+        });
+    </script>
+
+</body>
+
+</html>

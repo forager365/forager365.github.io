@@ -1,0 +1,262 @@
+/* Science Grade 6 - AI Integrated Lesson Plans */
+:root {
+  --primary: #1a73e8;
+  --primary-light: #e8f0fe;
+  --accent: #34a853;
+  --accent-light: #e6f4ea;
+  --warning: #fbbc04;
+  --warning-light: #fef7e0;
+  --surface: #ffffff;
+  --bg: #f8f9fa;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --border: #dadce0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 0;
+}
+
+.page-header {
+  background: linear-gradient(135deg, var(--primary), #1557b0);
+  color: white;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.page-header .section-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.85;
+  margin-bottom: 0.25rem;
+}
+
+.page-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.page-header .book-info {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  justify-content: center;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.meta-chip.ai {
+  background: var(--accent-light);
+  color: #137333;
+  border: 1px solid #ceead6;
+}
+
+.meta-chip.time {
+  background: var(--warning-light);
+  color: #7c6900;
+  border: 1px solid #f5e6a3;
+}
+
+.meta-chip.subject {
+  background: var(--primary-light);
+  color: #174ea6;
+  border: 1px solid #c6dafc;
+}
+
+.container {
+  max-width: 860px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+/* Accordion using <details> */
+details.accordion-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+details.accordion-item[open] {
+  box-shadow: var(--shadow-lg);
+}
+
+details.accordion-item summary {
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+details.accordion-item summary:hover {
+  background: var(--bg);
+}
+
+details.accordion-item summary::-webkit-details-marker { display: none; }
+
+details.accordion-item summary::after {
+  content: '\25BC';
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
+details.accordion-item[open] summary::after {
+  transform: rotate(180deg);
+}
+
+details.accordion-item summary .icon {
+  margin-right: 0.6rem;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+details.accordion-item .accordion-body {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+details.accordion-item .accordion-body ul {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+details.accordion-item .accordion-body li {
+  margin-bottom: 0.4rem;
+}
+
+details.accordion-item .accordion-body p {
+  margin: 0.5rem 0;
+}
+
+.ai-tag {
+  display: inline-block;
+  background: var(--accent-light);
+  color: #137333;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  margin: 0.25rem 0.25rem 0.25rem 0;
+  border: 1px solid #ceead6;
+}
+
+.link-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--primary-light);
+  color: var(--primary);
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0.25rem 0;
+  border: 1px solid #c6dafc;
+  transition: background 0.15s;
+  word-break: break-all;
+}
+
+.link-card:hover {
+  background: #d2e3fc;
+}
+
+/* Glossary */
+.glossary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 1.5rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.glossary-header {
+  background: linear-gradient(135deg, #f1f3f4, #e8eaed);
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.glossary-body {
+  padding: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.glossary-body h3 {
+  font-size: 0.95rem;
+  color: var(--primary);
+  margin: 1rem 0 0.4rem;
+}
+
+.glossary-body h3:first-child {
+  margin-top: 0;
+}
+
+.glossary-body p {
+  margin: 0.4rem 0;
+  color: var(--text-secondary);
+}
+
+.glossary-body a {
+  color: var(--primary);
+  word-break: break-all;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  .page-header { padding: 1.5rem 1rem; }
+  .page-header h1 { font-size: 1.3rem; }
+  .container { padding: 0 0.75rem; margin: 1rem auto; }
+  details.accordion-item summary { padding: 0.85rem 1rem; font-size: 0.9rem; }
+  details.accordion-item .accordion-body { padding: 0 1rem 1rem; }
+}

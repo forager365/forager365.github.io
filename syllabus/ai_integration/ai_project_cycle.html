@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project Cycle Curriculum</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Page Specific Styles */
+        :root {
+            /* Project Cycle Specific Colors */
+            --scoping: #7c3aed;
+            /* Violet */
+            --acquisition: #0891b2;
+            /* Cyan */
+            --exploration: #db2777;
+            /* Pink */
+            --modelling: #16a34a;
+            /* Green */
+            --card-bg: #ffffff;
+        }
+
+        /* Accordion Structure */
+        .accordion-section {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            background: transparent;
+        }
+
+        /* Clickable Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .section-header:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            flex-grow: 1;
+        }
+
+        /* Chevron Icon */
+        .chevron {
+            transition: transform 0.3s ease;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .active .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Collapsible Body */
+        .section-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+            padding: 0 10px;
+        }
+
+        .active .section-body {
+            opacity: 1;
+            margin-top: 15px;
+        }
+
+        /* Card Layout */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Left Side: Content */
+        .card-content {
+            padding: 25px;
+            flex: 2;
+            border-left: 5px solid transparent;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-title {
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        /* Bullet Lists in Cards */
+        .content-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .content-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+
+        .content-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        /* Right Side: Outcomes */
+        .card-outcome {
+            flex: 1;
+            background-color: #f8fafc;
+            padding: 25px;
+            border-left: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .outcome-label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .outcome-text {
+            font-size: 0.9rem;
+            color: #334155;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Color Themes */
+        .theme-scoping .section-icon {
+            background: var(--scoping);
+        }
+
+        .theme-scoping .card-content {
+            border-left-color: var(--scoping);
+        }
+
+        .theme-scoping .tag {
+            background: #f3e8ff;
+            color: var(--scoping);
+        }
+
+        .theme-acquisition .section-icon {
+            background: var(--acquisition);
+        }
+
+        .theme-acquisition .card-content {
+            border-left-color: var(--acquisition);
+        }
+
+        .theme-acquisition .tag {
+            background: #ecfeff;
+            color: var(--acquisition);
+        }
+
+        .theme-exploration .section-icon {
+            background: var(--exploration);
+        }
+
+        .theme-exploration .card-content {
+            border-left-color: var(--exploration);
+        }
+
+        .theme-exploration .tag {
+            background: #fce7f3;
+            color: var(--exploration);
+        }
+
+        .theme-modelling .section-icon {
+            background: var(--modelling);
+        }
+
+        .theme-modelling .card-content {
+            border-left-color: var(--modelling);
+        }
+
+        .theme-modelling .tag {
+            background: #dcfce7;
+            color: var(--modelling);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card {
+                flex-direction: column;
+            }
+
+            .card-outcome {
+                border-left: none;
+                border-top: 1px solid #e2e8f0;
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">AI Course</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="ai-course.html">Course Objectives</a></li>
+            <li class="nav-item"><a href="unit-distribution.html">Unit Distribution</a></li>
+            <li class="nav-item"><a href="course-outline.html">Course Outline</a></li>
+            <li class="nav-item"><a href="ai_project_cycle.html" class="active">AI Project Cycle</a></li>
+            <li class="nav-item"><a href="neural_network.html">Neural Networks</a></li>
+            <li class="nav-item"><a href="python_module.html">Beginning Python</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <button class="toggle-btn" id="sidebarToggle">☰</button>
+            <div class="page-title">AI Project Cycle</div>
+        </div>
+
+        <div class="content-scroll-area">
+            <div class="container">
+                <header style="text-align: center; margin-bottom: 50px;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 10px; color: var(--dark);">AI Project Cycle</h1>
+                    <div class="subtitle"
+                        style="font-size: 1.2rem; color: var(--text-color); max-width: 600px; margin: 0 auto;">A
+                        step-by-step framework for building AI solutions</div>
+                </header>
+
+                <div class="accordion-section theme-scoping" id="section-1">
+                    <div class="section-header" onclick="toggleSection('section-1')">
+                        <div class="section-icon">🎯</div>
+                        <div class="section-title">Problem Scoping</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">Introduction to AI Project Cycle</h3>
+                                <ul class="content-list">
+                                    <li>Problem Scoping</li>
+                                    <li>Data Acquisition</li>
+                                    <li>Data Exploration</li>
+                                    <li>Modelling & Evaluation</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Identify the AI Project Cycle framework.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Brainstorming & Goal Setting</h3>
+                                <ul class="content-list">
+                                    <li>Discuss various topics within a theme and select one.</li>
+                                    <li>Draw a mind map of problems related to the topic.</li>
+                                    <li>Choose one specific problem to be the project goal.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Learn problem scoping and ways to set goals for an AI project.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Setting Actions Around the Goal</h3>
+                                <ul class="content-list">
+                                    <li>List stakeholders involved in the problem.</li>
+                                    <li>Search for current actions taken to solve this problem.</li>
+                                    <li>Think around the ethics involved in the goal.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Identify stakeholders involved in the problem scoped. Brainstorm
+                                    on ethical issues.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Data and Analysis</h3>
+                                <ul class="content-list">
+                                    <li>Identify data features needed and sources.</li>
+                                    <li>Determine frequency of collection.</li>
+                                    <li>Analyze consequences of insufficient data.</li>
+                                    <li>Determine validation methods and how analysis informs action.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Understand the iterative nature of problem scoping in the AI
+                                    project cycle.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Presentation</span>
+                                <h3 class="card-title">Project Proposal</h3>
+                                <p style="color: #475569; margin:0;">Presenting the goal, actions, and data plan.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Foresee data requirements and analysis. Share student
+                                    discussions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-acquisition" id="section-2">
+                    <div class="section-header" onclick="toggleSection('section-2')">
+                        <div class="section-icon">🧲</div>
+                        <div class="section-title">Data Acquisition</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Activity</span>
+                                <h3 class="card-title">Introduction to Data and its Types</h3>
+                                <p style="color: #475569;">Students work around given scenarios to think of ways to
+                                    acquire data.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Identify data requirements and find reliable sources to obtain
+                                    relevant data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-exploration" id="section-3">
+                    <div class="section-header" onclick="toggleSection('section-3')">
+                        <div class="section-icon">📊</div>
+                        <div class="section-title">Data Exploration</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">Data Visualization</h3>
+                                <ul class="content-list">
+                                    <li>Need for visualizing data.</li>
+                                    <li>Ways to visualize data using various graphical tools.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">To understand the purpose of Data Visualization.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">Let's use Graphical Tools</h3>
+                                <ul class="content-list">
+                                    <li>Decide kind of data required for a scenario and acquire it.</li>
+                                    <li>Select appropriate graphical format to represent data.</li>
+                                    <li>Present the sketched graph.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Use various types of graphs to visualize acquired data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-section theme-modelling" id="section-4">
+                    <div class="section-header" onclick="toggleSection('section-4')">
+                        <div class="section-icon">🧠</div>
+                        <div class="section-title">Modelling</div>
+                        <div class="chevron">▼</div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Session</span>
+                                <h3 class="card-title">Decision Tree</h3>
+                                <p style="color: #475569;">Introduction to the basic structure of Decision Trees.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Understand, create and implement the concept of Decision Trees.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">Designing a Decision Tree</h3>
+                                <p style="color: #475569;">To design a Decision Tree based on given data.</p>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Practical application of decision tree logic.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="tag">Recommended Activity</span>
+                                <h3 class="card-title">Pixel It</h3>
+                                <ul class="content-list">
+                                    <li>Create an "AI Model" to classify handwritten letters.</li>
+                                    <li>Divide alphabets into pixels to analyze patterns.</li>
+                                    <li>Differentiate between alphabets based on pixel patterns.</li>
+                                </ul>
+                            </div>
+                            <div class="card-outcome">
+                                <span class="outcome-label">Learning Outcome</span>
+                                <p class="outcome-text">Understand and visualize computer's ability to identify
+                                    alphabets and handwritings.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const body = section.querySelector('.section-body');
+            const isActive = section.classList.contains('active');
+
+            if (isActive) {
+                section.classList.remove('active');
+                body.style.maxHeight = null;
+            } else {
+                section.classList.add('active');
+                body.style.maxHeight = body.scrollHeight + "px";
+            }
+        }
+
+        // Initialize: Open first section
+        document.addEventListener("DOMContentLoaded", function () {
+            const firstSection = document.getElementById('section-1');
+            if (firstSection) {
+                firstSection.classList.add('active');
+                const firstBody = firstSection.querySelector('.section-body');
+                firstBody.style.maxHeight = firstBody.scrollHeight + "px";
+            }
+        });
+    </script>
+</body>
+
+</html>

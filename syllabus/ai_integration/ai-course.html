@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Readiness Curriculum</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Page Specific Styles */
+    .hero-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 4rem 1rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .hero-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    section {
+      margin-bottom: 4rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: var(--secondary);
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 4px;
+      background-color: var(--primary);
+      margin: 10px auto 0;
+      border-radius: 2px;
+    }
+
+    /* Objectives Grid */
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .obj-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-left: 5px solid var(--primary);
+      transition: transform 0.2s;
+    }
+
+    .obj-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .obj-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    /* Outcomes Split */
+    .outcomes-wrapper {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .category {
+      margin-bottom: 2rem;
+    }
+
+    .category h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+
+    .custom-list {
+      list-style-type: none;
+    }
+
+    .custom-list li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.8rem;
+      color: var(--text-color);
+    }
+
+    .custom-list li::before {
+      content: "•";
+      color: var(--primary);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+      font-size: 1.2rem;
+      line-height: 1.4rem;
+    }
+
+    /* Footer */
+    .page-footer {
+      text-align: center;
+      padding: 2rem;
+      background-color: var(--dark);
+      color: white;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+      .outcomes-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">AI Course</div>
+    <ul class="nav-links">
+      <li class="nav-item"><a href="ai-course.html" class="active">Course Objectives</a></li>
+      <li class="nav-item"><a href="unit-distribution.html">Unit Distribution</a></li>
+      <li class="nav-item"><a href="course-outline.html">Course Outline</a></li>
+      <li class="nav-item"><a href="ai_project_cycle.html">AI Project Cycle</a></li>
+      <li class="nav-item"><a href="neural_network.html">Neural Networks</a></li>
+      <li class="nav-item"><a href="python_module.html">Beginning Python</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="top-bar">
+      <button class="toggle-btn" id="sidebarToggle">☰</button>
+      <div class="page-title">AI Course Overview</div>
+    </div>
+
+    <div class="content-scroll-area">
+
+      <header class="hero-header">
+        <h1>AI Curriculum & Readiness</h1>
+        <p>Developing a deep readiness for understanding and appreciating Artificial Intelligence and its application in
+          our lives.</p>
+      </header>
+
+      <div class="container">
+
+        <section>
+          <h2>Course Objectives</h2>
+          <div class="objectives-grid">
+            <div class="obj-card">
+              <h3>01. Immersion</h3>
+              <p>Understanding the world of AI through games, activities, and multisensorial learning to become
+                AI-Ready.</p>
+            </div>
+            <div class="obj-card">
+              <h3>02. Three Domains</h3>
+              <p>Introducing the three core domains of AI (Data, CV, NLP) in an age-appropriate manner.</p>
+            </div>
+            <div class="obj-card">
+              <h3>03. Hands-On Learning</h3>
+              <p>Constructing meaning through interactive participation and engaging activities.</p>
+            </div>
+            <div class="obj-card">
+              <h3>04. The Project Cycle</h3>
+              <p>Learning the structural framework of how AI projects are built from start to finish.</p>
+            </div>
+            <div class="obj-card">
+              <h3>05. Python Skills</h3>
+              <p>Introduction to programming skills using basic Python coding language.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Learning Outcomes</h2>
+          <div class="outcomes-wrapper outcomes-columns">
+
+            <div class="category">
+              <h3>Foundations & Society</h3>
+              <ul class="custom-list">
+                <li>Identify Artificial Intelligence and describe its applications in daily life.</li>
+                <li>Relate and reflect on Human-Machine Interactions.</li>
+                <li>Imagine and examine skills required for futuristic job opportunities.</li>
+                <li>Understand the impact of AI on Sustainable Development Goals (SDGs).</li>
+                <li>Gain awareness of AI bias, access issues, and ethical considerations.</li>
+                <li>Develop effective communication and collaborative work skills.</li>
+                <li>Unleash imagination regarding smart homes and interactive storytelling.</li>
+              </ul>
+            </div>
+
+            <div class="category">
+              <h3>The AI Project Cycle</h3>
+              <ul class="custom-list">
+                <li>Identify the AI Project framework and learn "Problem Scoping."</li>
+                <li>Understand the iterative nature of scoping and goal setting.</li>
+                <li>Brainstorm ethical issues surrounding selected problems.</li>
+                <li>Identify data requirements and find reliable sources.</li>
+                <li>Use various graphs to visualize acquired data.</li>
+              </ul>
+            </div>
+
+            <div class="category full-width">
+              <h3>Technical Mastery & Coding</h3>
+              <ul class="custom-list">
+                <li><strong>Domains of AI:</strong> Interact with Data, Computer Vision, and Natural Language
+                  Processing.</li>
+                <li><strong>Decision Trees:</strong> Understand, create, and implement decision logic.</li>
+                <li><strong>Computer Vision:</strong> Visualize the computer’s ability to identify alphabets and
+                  handwriting.</li>
+                <li><strong>Neural Networks:</strong> Appreciate the concept through gamification.</li>
+                <li><strong>Python:</strong> Acquire introductory programming skills in a user-friendly format.</li>
+              </ul>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <footer class="page-footer">
+        <p>AI Readiness Curriculum | Empowering Future Innovators</p>
+      </footer>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
