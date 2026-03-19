@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triangle Explorer — Interactive Math Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1729;
+  --surface: #182038;
+  --surface2: #1e2a4a;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #f472b6;
+  --green: #34d399;
+  --orange: #fb923c;
+  --yellow: #fbbf24;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --radius: 14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(56,189,248,0.4), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(129,140,248,0.3), transparent),
+    radial-gradient(1.5px 1.5px at 60% 20%, rgba(244,114,182,0.3), transparent),
+    radial-gradient(1px 1px at 80% 80%, rgba(56,189,248,0.3), transparent),
+    radial-gradient(1px 1px at 10% 90%, rgba(251,191,36,0.2), transparent),
+    radial-gradient(1.5px 1.5px at 90% 40%, rgba(52,211,153,0.3), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(129,140,248,0.2), transparent),
+    radial-gradient(1px 1px at 30% 10%, rgba(244,114,182,0.2), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(56,189,248,0.2), transparent),
+    radial-gradient(1px 1px at 15% 55%, rgba(251,146,60,0.2), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header {
+  text-align: center;
+  padding: 36px 20px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+header h1 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+header p {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1.5px solid transparent;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab:hover { border-color: var(--accent); color: var(--text); }
+.tab.active {
+  background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(129,140,248,0.2));
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.panel { display: none; position: relative; z-index: 1; }
+.panel.active { display: block; animation: fadeUp 0.4s ease; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ── PLAYGROUND ── */
+.playground {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 860px) {
+  .playground { grid-template-columns: 1fr; }
+}
+
+.canvas-wrap {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid rgba(56,189,248,0.15);
+  padding: 16px;
+  position: relative;
+  min-height: 420px;
+}
+
+.canvas-wrap svg {
+  width: 100%;
+  height: 400px;
+  cursor: default;
+}
+
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid rgba(129,140,248,0.15);
+  padding: 18px;
+}
+
+.card h3 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Fredoka', sans-serif;
+}
+
+.badge-equilateral { background: rgba(52,211,153,0.2); color: var(--green); }
+.badge-isosceles   { background: rgba(56,189,248,0.2); color: var(--accent); }
+.badge-scalene     { background: rgba(251,146,60,0.2); color: var(--orange); }
+.badge-acute       { background: rgba(129,140,248,0.2); color: var(--accent2); }
+.badge-right       { background: rgba(251,191,36,0.2); color: var(--yellow); }
+.badge-obtuse      { background: rgba(244,114,182,0.2); color: var(--accent3); }
+
+.prop-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.prop-row:last-child { border-bottom: none; }
+.prop-label { color: var(--text-dim); }
+.prop-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.check-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+
+.check-pass { background: rgba(52,211,153,0.2); color: var(--green); }
+.check-fail { background: rgba(244,114,182,0.2); color: var(--accent3); }
+
+.hint-box {
+  background: rgba(56,189,248,0.08);
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.reset-btn {
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.reset-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56,189,248,0.3); }
+
+/* ── LEARN PANELS ── */
+.learn-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 20px 40px;
+}
+
+.learn-section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid rgba(129,140,248,0.12);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.learn-section h2 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.learn-section p, .learn-section li {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+.learn-section ul { list-style: none; padding-left: 0; }
+.learn-section li::before {
+  content: '▸';
+  color: var(--accent);
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+.tri-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.tri-card {
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.tri-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+
+.tri-card svg { width: 120px; height: 100px; margin-bottom: 12px; }
+
+.tri-card h4 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.tri-card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+.formula-box {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 14px 0;
+  font-size: 18px;
+  font-family: 'Fredoka', sans-serif;
+  text-align: center;
+  letter-spacing: 1px;
+  border: 1px solid rgba(56,189,248,0.15);
+}
+
+/* ── EXTERIOR ANGLE DEMO ── */
+.ext-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.ext-demo svg { flex-shrink: 0; }
+
+.ext-values {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ext-val {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ── REAL WORLD ── */
+.rw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.rw-card {
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s;
+}
+
+.rw-card:hover { transform: translateY(-4px); }
+
+.rw-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.rw-card h4 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.rw-card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* ── SLIDER ── */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.slider-row label {
+  font-size: 13px;
+  color: var(--text-dim);
+  min-width: 100px;
+}
+
+.slider-row input[type=range] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.slider-row .val {
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.vertex-label {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  fill: #fff;
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.angle-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.drag-hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  opacity: 0.7;
+}
+
+.instruction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.25);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>△ Triangle Explorer</h1>
+  <p>Drag, discover, and learn everything about triangles!</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('playground')">🎮 Playground</button>
+  <button class="tab" onclick="showTab('types')">📐 Types of Triangles</button>
+  <button class="tab" onclick="showTab('properties')">🔬 Properties & Theorems</button>
+  <button class="tab" onclick="showTab('realworld')">🌍 Real World Uses</button>
+</div>
+
+<!-- ═══════════ PLAYGROUND ═══════════ -->
+<div class="panel active" id="panel-playground">
+  <div class="playground">
+    <div>
+      <div class="canvas-wrap">
+        <div class="instruction-pill"><span class="pulse-dot"></span> Drag the colored vertices to reshape the triangle</div>
+        <svg id="triSVG" viewBox="0 0 560 400"></svg>
+      </div>
+      <p class="drag-hint">Try making an equilateral, isosceles, right-angle, or obtuse triangle!</p>
+    </div>
+    <div class="info-panel">
+      <div class="card">
+        <h3>🏷️ Classification</h3>
+        <div id="classifBySide" style="margin-bottom:8px;"></div>
+        <div id="classifByAngle"></div>
+      </div>
+      <div class="card">
+        <h3>📏 Sides</h3>
+        <div id="sidesInfo"></div>
+      </div>
+      <div class="card">
+        <h3>📐 Angles</h3>
+        <div id="anglesInfo"></div>
+        <div class="formula-box" style="font-size:14px; margin-top:10px;">
+          ∠A + ∠B + ∠C = <span id="angleSum">180°</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>⚖️ Triangle Inequality</h3>
+        <div id="inequalityInfo"></div>
+      </div>
+      <div class="card" id="exteriorCard">
+        <h3>🔄 Exterior Angle</h3>
+        <div id="exteriorInfo"></div>
+      </div>
+      <button class="reset-btn" onclick="resetTriangle()">↻ Reset Triangle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TYPES ═══════════ -->
+<div class="panel" id="panel-types">
+  <div class="learn-container">
+    <div class="learn-section">
+      <h2>📐 By Sides</h2>
+      <p>Triangles can be classified by comparing the lengths of their three sides.</p>
+      <div class="tri-grid">
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="60,8 12,92 108,92" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+          <h4 style="color:var(--green);">Equilateral</h4>
+          <p>All three sides are <strong>equal</strong>. All three angles are exactly <strong>60°</strong>. The most symmetrical triangle!</p>
+        </div>
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="60,8 18,92 102,92" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linejoin="round"/>
+            <line x1="48" y1="50" x2="48" y2="56" stroke="#38bdf8" stroke-width="2"/>
+            <line x1="72" y1="50" x2="72" y2="56" stroke="#38bdf8" stroke-width="2"/>
+          </svg>
+          <h4 style="color:var(--accent);">Isosceles</h4>
+          <p>Exactly <strong>two sides</strong> are equal. The angles opposite the equal sides are also equal.</p>
+        </div>
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="20,88 100,92 70,12" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+          <h4 style="color:var(--orange);">Scalene</h4>
+          <p>All three sides have <strong>different</strong> lengths. All three angles are different too.</p>
+        </div>
+      </div>
+    </div>
+    <div class="learn-section">
+      <h2>📐 By Angles</h2>
+      <p>Triangles can also be classified by the size of their largest angle.</p>
+      <div class="tri-grid">
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="60,12 16,88 104,88" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+          <h4 style="color:var(--accent2);">Acute</h4>
+          <p><strong>All</strong> angles are less than 90°. Every equilateral triangle is acute.</p>
+        </div>
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="16,88 16,16 104,88" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="16" y="72" width="16" height="16" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+          </svg>
+          <h4 style="color:var(--yellow);">Right</h4>
+          <p>Has exactly <strong>one 90° angle</strong>. The side opposite the right angle is the hypotenuse — the longest side.</p>
+        </div>
+        <div class="tri-card">
+          <svg viewBox="0 0 120 100">
+            <polygon points="10,80 60,12 110,80" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+          <h4 style="color:var(--accent3);">Obtuse</h4>
+          <p>Has exactly <strong>one angle greater than 90°</strong>. The other two must be acute.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PROPERTIES ═══════════ -->
+<div class="panel" id="panel-properties">
+  <div class="learn-container">
+    <div class="learn-section">
+      <h2>🔺 Angle Sum Property</h2>
+      <p>The sum of the interior angles of any triangle is always <strong style="color:var(--accent);">180°</strong>. No matter how you stretch or squish a triangle, this never changes!</p>
+      <div class="formula-box">∠A + ∠B + ∠C = 180°</div>
+      <p style="margin-top:10px;">Try dragging the vertices in the Playground — watch the angle sum stay at 180° every time.</p>
+    </div>
+
+    <div class="learn-section">
+      <h2>🔄 Exterior Angle Theorem</h2>
+      <p>An <strong>exterior angle</strong> of a triangle is formed when one side is extended. The exterior angle equals the <strong>sum of the two non-adjacent (remote) interior angles</strong>.</p>
+      <div class="formula-box">Exterior Angle = Sum of Two Remote Interior Angles</div>
+      <div id="extAngleDemo" style="margin-top:16px;">
+        <div class="slider-row">
+          <label>∠A (interior):</label>
+          <input type="range" id="extSliderA" min="10" max="80" value="50" oninput="updateExtDemo()">
+          <span class="val" id="extValA">50°</span>
+        </div>
+        <div class="slider-row">
+          <label>∠B (interior):</label>
+          <input type="range" id="extSliderB" min="10" max="80" value="60" oninput="updateExtDemo()">
+          <span class="val" id="extValB">60°</span>
+        </div>
+        <div class="ext-demo">
+          <svg id="extSVG" viewBox="0 0 320 200" width="320" height="200"></svg>
+          <div class="ext-values">
+            <div class="ext-val" style="background:rgba(56,189,248,0.12); color:var(--accent);">∠A = <span id="extA2">50°</span></div>
+            <div class="ext-val" style="background:rgba(129,140,248,0.12); color:var(--accent2);">∠B = <span id="extB2">60°</span></div>
+            <div class="ext-val" style="background:rgba(52,211,153,0.12); color:var(--green);">∠C (interior) = <span id="extC2">70°</span></div>
+            <div class="ext-val" style="background:rgba(244,114,182,0.15); color:var(--accent3);">Exterior at C = <span id="extExt">110°</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="learn-section">
+      <h2>⚖️ Triangle Inequality Theorem</h2>
+      <p>The <strong>sum of any two sides</strong> of a triangle must be <strong>greater than</strong> the third side. If this rule is broken, you can't form a triangle!</p>
+      <div class="formula-box">a + b &gt; c &nbsp;&nbsp; &amp; &nbsp;&nbsp; b + c &gt; a &nbsp;&nbsp; &amp; &nbsp;&nbsp; a + c &gt; b</div>
+      <div style="margin-top:16px;">
+        <div class="slider-row">
+          <label>Side a:</label>
+          <input type="range" id="ineqA" min="1" max="10" value="5" oninput="updateIneqDemo()">
+          <span class="val" id="ineqAv">5</span>
+        </div>
+        <div class="slider-row">
+          <label>Side b:</label>
+          <input type="range" id="ineqB" min="1" max="10" value="4" oninput="updateIneqDemo()">
+          <span class="val" id="ineqBv">4</span>
+        </div>
+        <div class="slider-row">
+          <label>Side c:</label>
+          <input type="range" id="ineqC" min="1" max="10" value="6" oninput="updateIneqDemo()">
+          <span class="val" id="ineqCv">6</span>
+        </div>
+        <div id="ineqResults" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div class="learn-section">
+      <h2>✨ Special Triangle Properties</h2>
+      <div class="tri-grid">
+        <div class="tri-card" style="text-align:left;">
+          <h4 style="color:var(--green);">Equilateral</h4>
+          <ul style="list-style:none; padding:0; margin-top:8px;">
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ All sides equal</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ All angles = 60°</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ 3 lines of symmetry</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ Always acute</li>
+          </ul>
+        </div>
+        <div class="tri-card" style="text-align:left;">
+          <h4 style="color:var(--accent);">Isosceles</h4>
+          <ul style="list-style:none; padding:0; margin-top:8px;">
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ Two sides equal</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ Base angles equal</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ 1 line of symmetry</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ Can be acute, right, or obtuse</li>
+          </ul>
+        </div>
+        <div class="tri-card" style="text-align:left;">
+          <h4 style="color:var(--orange);">Scalene</h4>
+          <ul style="list-style:none; padding:0; margin-top:8px;">
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ All sides different</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ All angles different</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ No lines of symmetry</li>
+            <li style="font-size:13px; color:var(--text-dim); padding:3px 0;">▸ Can be acute, right, or obtuse</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ REAL WORLD ═══════════ -->
+<div class="panel" id="panel-realworld">
+  <div class="learn-container">
+    <div class="learn-section">
+      <h2>🌍 Why Triangles Matter</h2>
+      <p>Triangles are everywhere — from ancient pyramids to modern skyscrapers. They are the <strong>strongest shape in nature</strong> because their rigid structure can't be deformed without changing a side length. Here's where they show up:</p>
+      <div class="rw-grid">
+        <div class="rw-card">
+          <div class="rw-icon">🌉</div>
+          <h4>Bridges & Buildings</h4>
+          <p>Truss bridges use networks of triangles to distribute weight. The triangular shape prevents the structure from collapsing under heavy loads.</p>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🏔️</div>
+          <h4>Surveying & Navigation</h4>
+          <p><strong>Triangulation</strong> is used by GPS satellites and surveyors to pinpoint exact locations by measuring angles from known points.</p>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🎮</div>
+          <h4>Computer Graphics</h4>
+          <p>Every 3D model in video games is made of thousands of tiny triangles (called a mesh). Triangles are the simplest polygon that defines a flat surface.</p>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">✈️</div>
+          <h4>Aviation & Aerospace</h4>
+          <p>Delta (triangular) wings on fighter jets reduce drag at supersonic speeds. Pilots use triangle-based trigonometry for navigation.</p>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🏗️</div>
+          <h4>Roofs & Architecture</h4>
+          <p>Sloped roofs are triangular so rain and snow slide off. The A-frame design provides maximum strength with minimal material.</p>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🎵</div>
+          <h4>Music & Art</h4>
+          <p>The triangle instrument, the "rule of thirds" in photography, and the golden triangle in design all use this fundamental shape.</p>
+        </div>
+      </div>
+    </div>
+    <div class="learn-section">
+      <h2>💡 Fun Facts</h2>
+      <ul>
+        <li>The Great Pyramid of Giza has four triangular faces and has stood for over 4,500 years — proof of triangular strength!</li>
+        <li>The Bermuda Triangle isn't really a triangle — it's a loosely defined region, but the name stuck because triangles are so recognizable.</li>
+        <li>Geodesic domes (like the Epcot ball) are built entirely from triangles — they enclose the most volume with the least surface area.</li>
+        <li>Your smartphone's touchscreen uses a mesh of triangles to detect exactly where your finger is.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TAB NAVIGATION ──
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── INTERACTIVE TRIANGLE ──
+const svg = document.getElementById('triSVG');
+const NS = 'http://www.w3.org/2000/svg';
+
+let vertices = [
+  { x: 280, y: 50, label: 'A', color: '#38bdf8' },
+  { x: 100, y: 340, label: 'B', color: '#818cf8' },
+  { x: 460, y: 340, label: 'C', color: '#f472b6' }
+];
+
+let dragging = null;
+let svgRect;
+
+function dist(a, b) {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
+function angle(a, b, c) {
+  const ab = { x: a.x - b.x, y: a.y - b.y };
+  const cb = { x: c.x - b.x, y: c.y - b.y };
+  const dot = ab.x * cb.x + ab.y * cb.y;
+  const cross = ab.x * cb.y - ab.y * cb.x;
+  let ang = Math.atan2(Math.abs(cross), dot) * 180 / Math.PI;
+  return ang;
+}
+
+function drawTriangle() {
+  const [A, B, C] = vertices;
+  svg.innerHTML = '';
+
+  // Gradient fill
+  const defs = document.createElementNS(NS, 'defs');
+  const grad = document.createElementNS(NS, 'linearGradient');
+  grad.id = 'triFill';
+  grad.setAttribute('x1', '0%'); grad.setAttribute('y1', '0%');
+  grad.setAttribute('x2', '100%'); grad.setAttribute('y2', '100%');
+  const s1 = document.createElementNS(NS, 'stop');
+  s1.setAttribute('offset', '0%'); s1.setAttribute('stop-color', 'rgba(56,189,248,0.08)');
+  const s2 = document.createElementNS(NS, 'stop');
+  s2.setAttribute('offset', '100%'); s2.setAttribute('stop-color', 'rgba(244,114,182,0.08)');
+  grad.append(s1, s2);
+  defs.append(grad);
+  svg.append(defs);
+
+  // Triangle fill
+  const poly = document.createElementNS(NS, 'polygon');
+  poly.setAttribute('points', `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`);
+  poly.setAttribute('fill', 'url(#triFill)');
+  poly.setAttribute('stroke', 'rgba(255,255,255,0.6)');
+  poly.setAttribute('stroke-width', '2');
+  poly.setAttribute('stroke-linejoin', 'round');
+  svg.append(poly);
+
+  // Angle arcs
+  const angles = [
+    { vertex: A, from: B, to: C },
+    { vertex: B, from: A, to: C },
+    { vertex: C, from: A, to: B }
+  ];
+  const angValues = [angle(B, A, C), angle(A, B, C), angle(A, C, B)];
+  const angColors = ['#38bdf8', '#818cf8', '#f472b6'];
+
+  angles.forEach((a, i) => {
+    const r = 28;
+    const a1 = Math.atan2(a.from.y - a.vertex.y, a.from.x - a.vertex.x);
+    const a2 = Math.atan2(a.to.y - a.vertex.y, a.to.x - a.vertex.x);
+
+    let start = a1, end = a2;
+    let diff = end - start;
+    if (diff > Math.PI) diff -= 2 * Math.PI;
+    if (diff < -Math.PI) diff += 2 * Math.PI;
+
+    const sweep = diff > 0 ? 1 : 0;
+    const sx = a.vertex.x + r * Math.cos(start);
+    const sy = a.vertex.y + r * Math.sin(start);
+    const ex = a.vertex.x + r * Math.cos(end);
+    const ey = a.vertex.y + r * Math.sin(end);
+
+    const arc = document.createElementNS(NS, 'path');
+    arc.setAttribute('d', `M ${sx} ${sy} A ${r} ${r} 0 0 ${sweep} ${ex} ${ey}`);
+    arc.setAttribute('fill', 'none');
+    arc.setAttribute('stroke', angColors[i]);
+    arc.setAttribute('stroke-width', '2');
+    arc.setAttribute('opacity', '0.7');
+    svg.append(arc);
+
+    // Angle label
+    const mid = (start + end) / 2;
+    if (Math.abs(diff) > Math.PI) {
+      // Adjust for reflex
+    }
+    const midAngle = start + diff / 2;
+    const lr = 44;
+    const lx = a.vertex.x + lr * Math.cos(midAngle);
+    const ly = a.vertex.y + lr * Math.sin(midAngle);
+
+    const txt = document.createElementNS(NS, 'text');
+    txt.setAttribute('x', lx);
+    txt.setAttribute('y', ly);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('dominant-baseline', 'middle');
+    txt.setAttribute('class', 'angle-text');
+    txt.setAttribute('fill', angColors[i]);
+    txt.textContent = Math.round(angValues[i]) + '°';
+    svg.append(txt);
+
+    // Right angle indicator
+    if (Math.abs(angValues[i] - 90) < 2) {
+      const sq = document.createElementNS(NS, 'rect');
+      const sqr = 12;
+      const baseAng = a1;
+      const px = a.vertex.x + sqr * Math.cos(baseAng);
+      const py = a.vertex.y + sqr * Math.sin(baseAng);
+      // Simple right-angle square
+      const corner = document.createElementNS(NS, 'path');
+      const s = 14;
+      const dx1 = Math.cos(a1), dy1 = Math.sin(a1);
+      const dx2 = Math.cos(a2), dy2 = Math.sin(a2);
+      const p1x = a.vertex.x + s*dx1, p1y = a.vertex.y + s*dy1;
+      const p2x = a.vertex.x + s*dx1 + s*dx2, p2y = a.vertex.y + s*dy1 + s*dy2;
+      const p3x = a.vertex.x + s*dx2, p3y = a.vertex.y + s*dy2;
+      corner.setAttribute('d', `M ${p1x} ${p1y} L ${p2x} ${p2y} L ${p3x} ${p3y}`);
+      corner.setAttribute('fill', 'none');
+      corner.setAttribute('stroke', angColors[i]);
+      corner.setAttribute('stroke-width', '1.5');
+      svg.append(corner);
+    }
+  });
+
+  // Side length labels
+  const sides = [
+    { from: A, to: B, label: 'c' },
+    { from: B, to: C, label: 'a' },
+    { from: A, to: C, label: 'b' }
+  ];
+
+  sides.forEach(s => {
+    const mx = (s.from.x + s.to.x) / 2;
+    const my = (s.from.y + s.to.y) / 2;
+    const dx = s.to.x - s.from.x;
+    const dy = s.to.y - s.from.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const nx = -dy / len * 16;
+    const ny = dx / len * 16;
+
+    const txt = document.createElementNS(NS, 'text');
+    txt.setAttribute('x', mx + nx);
+    txt.setAttribute('y', my + ny);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('dominant-baseline', 'middle');
+    txt.setAttribute('fill', 'rgba(255,255,255,0.5)');
+    txt.setAttribute('font-size', '12');
+    txt.setAttribute('font-family', 'Outfit, sans-serif');
+    txt.textContent = (len / 30).toFixed(1);
+    svg.append(txt);
+  });
+
+  // Vertex circles and labels
+  vertices.forEach(v => {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', v.x);
+    c.setAttribute('cy', v.y);
+    c.setAttribute('r', '14');
+    c.setAttribute('fill', v.color);
+    c.setAttribute('stroke', '#fff');
+    c.setAttribute('stroke-width', '2');
+    c.setAttribute('cursor', 'grab');
+    c.setAttribute('filter', 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))');
+    svg.append(c);
+
+    const lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', v.x);
+    lbl.setAttribute('y', v.y + 1);
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('dominant-baseline', 'middle');
+    lbl.setAttribute('class', 'vertex-label');
+    lbl.setAttribute('font-size', '13');
+    lbl.textContent = v.label;
+    svg.append(lbl);
+  });
+
+  updateInfoPanel(angValues);
+}
+
+function updateInfoPanel(angValues) {
+  const [A, B, C] = vertices;
+  const sA = dist(B, C) / 30;
+  const sB = dist(A, C) / 30;
+  const sC = dist(A, B) / 30;
+  const sides = [sA, sB, sC];
+  const sorted = [...sides].sort((a, b) => a - b);
+
+  // Classification by side
+  let sideType, sideClass;
+  const tolerance = 0.3;
+  if (Math.abs(sorted[0] - sorted[2]) < tolerance) {
+    sideType = 'Equilateral'; sideClass = 'equilateral';
+  } else if (Math.abs(sorted[0] - sorted[1]) < tolerance || Math.abs(sorted[1] - sorted[2]) < tolerance) {
+    sideType = 'Isosceles'; sideClass = 'isosceles';
+  } else {
+    sideType = 'Scalene'; sideClass = 'scalene';
+  }
+
+  // Classification by angle
+  const maxAng = Math.max(...angValues);
+  let angType, angClass;
+  if (Math.abs(maxAng - 90) < 2) {
+    angType = 'Right'; angClass = 'right';
+  } else if (maxAng > 90) {
+    angType = 'Obtuse'; angClass = 'obtuse';
+  } else {
+    angType = 'Acute'; angClass = 'acute';
+  }
+
+  document.getElementById('classifBySide').innerHTML =
+    `<span class="badge badge-${sideClass}">By Sides: ${sideType}</span>`;
+  document.getElementById('classifByAngle').innerHTML =
+    `<span class="badge badge-${angClass}">By Angles: ${angType}</span>`;
+
+  // Sides
+  document.getElementById('sidesInfo').innerHTML = `
+    <div class="prop-row"><span class="prop-label">a (B→C)</span><span class="prop-value" style="color:#f472b6">${sA.toFixed(1)}</span></div>
+    <div class="prop-row"><span class="prop-label">b (A→C)</span><span class="prop-value" style="color:#818cf8">${sB.toFixed(1)}</span></div>
+    <div class="prop-row"><span class="prop-label">c (A→B)</span><span class="prop-value" style="color:#38bdf8">${sC.toFixed(1)}</span></div>
+  `;
+
+  // Angles
+  const sum = angValues[0] + angValues[1] + angValues[2];
+  document.getElementById('anglesInfo').innerHTML = `
+    <div class="prop-row"><span class="prop-label">∠A</span><span class="prop-value" style="color:#38bdf8">${Math.round(angValues[0])}°</span></div>
+    <div class="prop-row"><span class="prop-label">∠B</span><span class="prop-value" style="color:#818cf8">${Math.round(angValues[1])}°</span></div>
+    <div class="prop-row"><span class="prop-label">∠C</span><span class="prop-value" style="color:#f472b6">${Math.round(angValues[2])}°</span></div>
+  `;
+  document.getElementById('angleSum').textContent = Math.round(sum) + '°';
+
+  // Triangle inequality
+  const ineq = [
+    { check: `a + b > c`, val: `${sA.toFixed(1)} + ${sB.toFixed(1)} = ${(sA+sB).toFixed(1)} > ${sC.toFixed(1)}`, pass: sA + sB > sC },
+    { check: `b + c > a`, val: `${sB.toFixed(1)} + ${sC.toFixed(1)} = ${(sB+sC).toFixed(1)} > ${sA.toFixed(1)}`, pass: sB + sC > sA },
+    { check: `a + c > b`, val: `${sA.toFixed(1)} + ${sC.toFixed(1)} = ${(sA+sC).toFixed(1)} > ${sB.toFixed(1)}`, pass: sA + sC > sB }
+  ];
+
+  document.getElementById('inequalityInfo').innerHTML = ineq.map(i => `
+    <div class="check-row">
+      <span class="check-icon ${i.pass ? 'check-pass' : 'check-fail'}">${i.pass ? '✓' : '✗'}</span>
+      <span style="font-size:13px;">${i.val} <span style="color:${i.pass?'var(--green)':'var(--accent3)'};">${i.pass?'✓':'✗'}</span></span>
+    </div>
+  `).join('');
+
+  // Exterior angle
+  const extAngleC = angValues[0] + angValues[1]; // exterior at C = A + B
+  document.getElementById('exteriorInfo').innerHTML = `
+    <div class="prop-row"><span class="prop-label">Exterior at C</span><span class="prop-value" style="color:var(--accent3)">${Math.round(extAngleC)}°</span></div>
+    <div class="prop-row"><span class="prop-label">= ∠A + ∠B</span><span class="prop-value">${Math.round(angValues[0])}° + ${Math.round(angValues[1])}° = ${Math.round(extAngleC)}°</span></div>
+    <div class="hint-box" style="margin-top:8px;">The exterior angle at any vertex equals the sum of the two remote interior angles.</div>
+  `;
+}
+
+// Drag handling
+svg.addEventListener('pointerdown', e => {
+  svgRect = svg.getBoundingClientRect();
+  const sx = (e.clientX - svgRect.left) / svgRect.width * 560;
+  const sy = (e.clientY - svgRect.top) / svgRect.height * 400;
+
+  vertices.forEach((v, i) => {
+    if (dist({ x: sx, y: sy }, v) < 24) {
+      dragging = i;
+      svg.style.cursor = 'grabbing';
+    }
+  });
+});
+
+window.addEventListener('pointermove', e => {
+  if (dragging === null) return;
+  e.preventDefault();
+  svgRect = svg.getBoundingClientRect();
+  const sx = Math.max(20, Math.min(540, (e.clientX - svgRect.left) / svgRect.width * 560));
+  const sy = Math.max(20, Math.min(380, (e.clientY - svgRect.top) / svgRect.height * 400));
+  vertices[dragging].x = sx;
+  vertices[dragging].y = sy;
+  drawTriangle();
+});
+
+window.addEventListener('pointerup', () => {
+  dragging = null;
+  svg.style.cursor = 'default';
+});
+
+function resetTriangle() {
+  vertices[0] = { ...vertices[0], x: 280, y: 50 };
+  vertices[1] = { ...vertices[1], x: 100, y: 340 };
+  vertices[2] = { ...vertices[2], x: 460, y: 340 };
+  drawTriangle();
+}
+
+// ── EXTERIOR ANGLE DEMO ──
+function updateExtDemo() {
+  const a = parseInt(document.getElementById('extSliderA').value);
+  const b = parseInt(document.getElementById('extSliderB').value);
+  const c = 180 - a - b;
+  const ext = a + b;
+
+  document.getElementById('extValA').textContent = a + '°';
+  document.getElementById('extValB').textContent = b + '°';
+  document.getElementById('extA2').textContent = a + '°';
+  document.getElementById('extB2').textContent = b + '°';
+  document.getElementById('extC2').textContent = c + '°';
+  document.getElementById('extExt').textContent = ext + '°';
+
+  if (c <= 0) {
+    document.getElementById('extC2').textContent = 'Invalid!';
+    document.getElementById('extExt').textContent = '—';
+    return;
+  }
+
+  // Draw the demo triangle with exterior angle
+  const svgE = document.getElementById('extSVG');
+  svgE.innerHTML = '';
+
+  // Fixed triangle points
+  const Bx = 40, By = 160;
+  const Cx = 240, Cy = 160;
+
+  const angB = b * Math.PI / 180;
+  const lineLen = 160;
+  const Ax = Bx + lineLen * Math.cos(-angB);
+  const Ay = By + lineLen * Math.sin(-angB);
+
+  // Extended side beyond C
+  const dx = Cx - Bx, dy = Cy - By;
+  const el = 60;
+  const Ex = Cx + el * dx / Math.sqrt(dx*dx+dy*dy);
+  const Ey = Cy + el * dy / Math.sqrt(dx*dx+dy*dy);
+
+  // Triangle
+  const tri = document.createElementNS(NS, 'polygon');
+  tri.setAttribute('points', `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`);
+  tri.setAttribute('fill', 'rgba(129,140,248,0.08)');
+  tri.setAttribute('stroke', 'rgba(255,255,255,0.5)');
+  tri.setAttribute('stroke-width', '2');
+  svgE.append(tri);
+
+  // Extended line
+  const eline = document.createElementNS(NS, 'line');
+  eline.setAttribute('x1', Cx); eline.setAttribute('y1', Cy);
+  eline.setAttribute('x2', Ex); eline.setAttribute('y2', Ey);
+  eline.setAttribute('stroke', '#f472b6');
+  eline.setAttribute('stroke-width', '2');
+  eline.setAttribute('stroke-dasharray', '6,4');
+  svgE.append(eline);
+
+  // Exterior angle arc
+  const arcR = 30;
+  const angToA = Math.atan2(Ay - Cy, Ax - Cx);
+  const angToE = Math.atan2(Ey - Cy, Ex - Cx);
+  const asx = Cx + arcR * Math.cos(angToE);
+  const asy = Cy + arcR * Math.sin(angToE);
+  const aex = Cx + arcR * Math.cos(angToA);
+  const aey = Cy + arcR * Math.sin(angToA);
+  const arc = document.createElementNS(NS, 'path');
+  arc.setAttribute('d', `M ${asx} ${asy} A ${arcR} ${arcR} 0 0 0 ${aex} ${aey}`);
+  arc.setAttribute('fill', 'rgba(244,114,182,0.15)');
+  arc.setAttribute('stroke', '#f472b6');
+  arc.setAttribute('stroke-width', '2');
+  svgE.append(arc);
+
+  // Labels
+  const labels = [
+    { text: 'A', x: Ax - 4, y: Ay - 12, color: '#38bdf8' },
+    { text: 'B', x: Bx - 16, y: By + 6, color: '#818cf8' },
+    { text: 'C', x: Cx + 4, y: Cy + 20, color: '#f472b6' },
+    { text: ext + '°', x: Cx + 40, y: Cy - 16, color: '#f472b6' }
+  ];
+
+  labels.forEach(l => {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', l.x); t.setAttribute('y', l.y);
+    t.setAttribute('fill', l.color);
+    t.setAttribute('font-family', 'Fredoka, sans-serif');
+    t.setAttribute('font-size', '14');
+    t.setAttribute('font-weight', '600');
+    t.textContent = l.text;
+    svgE.append(t);
+  });
+}
+
+// ── INEQUALITY DEMO ──
+function updateIneqDemo() {
+  const a = parseInt(document.getElementById('ineqA').value);
+  const b = parseInt(document.getElementById('ineqB').value);
+  const c = parseInt(document.getElementById('ineqC').value);
+  document.getElementById('ineqAv').textContent = a;
+  document.getElementById('ineqBv').textContent = b;
+  document.getElementById('ineqCv').textContent = c;
+
+  const checks = [
+    { expr: `${a} + ${b} = ${a+b} > ${c}`, pass: a + b > c },
+    { expr: `${b} + ${c} = ${b+c} > ${a}`, pass: b + c > a },
+    { expr: `${a} + ${c} = ${a+c} > ${b}`, pass: a + c > b }
+  ];
+
+  const allPass = checks.every(c => c.pass);
+
+  document.getElementById('ineqResults').innerHTML = checks.map(ch => `
+    <div class="check-row">
+      <span class="check-icon ${ch.pass ? 'check-pass' : 'check-fail'}">${ch.pass ? '✓' : '✗'}</span>
+      <span style="font-size:14px;">${ch.expr} <span style="color:${ch.pass?'var(--green)':'var(--accent3)'}; font-weight:600;">${ch.pass?'TRUE':'FALSE'}</span></span>
+    </div>
+  `).join('') + `
+    <div class="hint-box" style="margin-top:12px;">
+      ${allPass
+        ? '✅ All conditions met — these sides <strong>can</strong> form a triangle!'
+        : '❌ At least one condition fails — these sides <strong>cannot</strong> form a triangle. Try adjusting the sliders!'}
+    </div>
+  `;
+}
+
+// ── INIT ──
+drawTriangle();
+updateExtDemo();
+updateIneqDemo();
+</script>
+</body>
+</html>
