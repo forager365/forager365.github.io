@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEMA Claims Manual — WASM Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/main-VpA6oX07.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/search-Dwg2J_Ij.js">
+  <link rel="modulepreload" crossorigin href="/assets/embed-ByJCB3EE.js">
+  <link rel="stylesheet" crossorigin href="/assets/search-yyXRhdH2.css">
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <header>
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brand-mark">FEMA QA</span>
+        <span class="brand-sub">NFIP Claims Manual</span>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./" aria-current="page">Search</a>
+        <a href="./viz.html">Map</a>
+        <a href="./lm.html">Ask</a>
+      </nav>
+    </div>
+    <p class="lede">
+      In-browser hybrid search: <strong>sqlite-vec</strong> (WASM) + FTS5 BM25,
+      fused with Reciprocal Rank Fusion. Embeddings via all-MiniLM-L6-v2 —
+      nothing leaves your machine after the model loads.
+    </p>
+  </header>
+
+  <main>
+    <section class="ask" aria-label="Search">
+      <div class="ask-box">
+        <input
+          id="question"
+          type="search"
+          placeholder="Ask about the FEMA Claims Manual…"
+          autocomplete="off"
+          autofocus
+        />
+        <button id="askBtn" type="button" disabled>Search</button>
+      </div>
+      <div class="samples">
+        <button type="button" data-q="My basement flooded and my water heater is ruined, is it covered?">
+          Basement / water heater coverage
+        </button>
+        <button type="button" data-q="What does section 2.4 state about ACV?">
+          Section 2.4 ACV
+        </button>
+        <button type="button" data-q="What is the deadline for submitting a proof of loss?">
+          Proof of loss deadline
+        </button>
+      </div>
+    </section>
+
+    <div id="boot" class="status boot" role="status">Starting…</div>
+    <div id="status" class="status" role="status" hidden></div>
+
+    <section id="results" class="results" hidden>
+      <h2 class="sources-title">Retrieved chunks <span id="meta" class="meta-inline"></span></h2>
+      <div id="sources"></div>
+    </section>
+  </main>
+
+</body>
+</html>

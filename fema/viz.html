@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEMA Claims Manual — Embedding Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/viz-PL3sQvKN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/search-Dwg2J_Ij.js">
+  <link rel="stylesheet" crossorigin href="/assets/search-yyXRhdH2.css">
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <header>
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brand-mark">FEMA QA</span>
+        <span class="brand-sub">Embedding map</span>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./">Search</a>
+        <a href="./viz.html" aria-current="page">Map</a>
+        <a href="./lm.html">Ask</a>
+      </nav>
+    </div>
+    <p class="lede">
+      PCA projection of all <strong>all-MiniLM-L6-v2</strong> chunk vectors in
+      <code>femaqa.db</code>, computed in your browser from the WASM SQLite file.
+      Color by k-means cluster or manual page.
+    </p>
+  </header>
+
+  <main class="viz-main">
+    <div id="boot" class="status boot" role="status">Starting…</div>
+
+    <section id="vizPanel" class="viz-panel" hidden>
+      <div class="viz-toolbar">
+        <label class="viz-field">
+          Color
+          <select id="colorMode">
+            <option value="cluster">K-means cluster</option>
+            <option value="page">Manual page</option>
+          </select>
+        </label>
+        <label class="viz-field">
+          Filter
+          <select id="clusterFilter">
+            <option value="all">All clusters</option>
+          </select>
+        </label>
+        <div id="vizMeta" class="viz-meta"></div>
+      </div>
+
+      <div class="viz-canvas-wrap">
+        <canvas id="vizCanvas" width="900" height="520" aria-label="PCA scatter of embeddings"></canvas>
+        <div id="hoverTip" class="hover-tip" hidden></div>
+      </div>
+
+      <div id="clusterLegend" class="cluster-legend"></div>
+
+      <section class="viz-stats">
+        <div class="stat-card"><div class="stat-val" id="statN">—</div><div class="stat-label">Chunks</div></div>
+        <div class="stat-card"><div class="stat-val" id="statDim">384-d</div><div class="stat-label">Embedding dim</div></div>
+        <div class="stat-card"><div class="stat-val" id="statPca">—</div><div class="stat-label">PCA 2D variance</div></div>
+        <div class="stat-card"><div class="stat-val" id="statPages">—</div><div class="stat-label">Page range</div></div>
+      </section>
+
+      <h2 class="sources-title">Clusters (k-means, k=6)</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="clusterTable">
+          <thead>
+            <tr><th>Cluster</th><th>Chunks</th><th>Page median</th><th>Top terms</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="caption">
+        Source: femaqa.db · PCA / k-means run locally in the browser · 2D layout is approximate
+      </p>
+    </section>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEMA Claims Manual — LiteRT-LM Ask</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/lm-B2A-LcFU.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/search-Dwg2J_Ij.js">
+  <link rel="modulepreload" crossorigin href="/assets/embed-ByJCB3EE.js">
+  <link rel="stylesheet" crossorigin href="/assets/search-yyXRhdH2.css">
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <header>
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brand-mark">FEMA QA</span>
+        <span class="brand-sub">LiteRT-LM Ask</span>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./">Search</a>
+        <a href="./viz.html">Map</a>
+        <a href="./lm.html" aria-current="page">Ask</a>
+      </nav>
+    </div>
+    <p class="lede">
+      Same hybrid retrieval as Search, then an <strong>Assistant-style</strong>
+      answer generated in-browser with
+      <a href="https://developers.google.com/edge/litert-lm/js" rel="noopener">LiteRT-LM.js</a>
+      (Gemma 4 + WebGPU) — mirrors the Java <code>Assistant</code> flow.
+    </p>
+  </header>
+
+  <main>
+    <section class="ask" aria-label="Ask">
+      <div class="ask-controls">
+        <label class="viz-field model-field">
+          Model
+          <select id="modelSelect">
+            <option value="e2b" selected>Gemma 4 E2B (faster)</option>
+            <option value="e4b">Gemma 4 E4B (stronger)</option>
+          </select>
+        </label>
+      </div>
+      <div class="ask-box">
+        <input
+          id="question"
+          type="search"
+          placeholder="Ask about the FEMA Claims Manual…"
+          autocomplete="off"
+          autofocus
+        />
+        <button id="askBtn" type="button" disabled>Ask</button>
+        <button id="cancelBtn" type="button" class="btn-secondary" hidden>Cancel</button>
+      </div>
+      <div class="samples">
+        <button type="button" data-q="My basement flooded and my water heater is ruined, is it covered?">
+          Basement / water heater coverage
+        </button>
+        <button type="button" data-q="What does section 2.4 state about ACV?">
+          Section 2.4 ACV
+        </button>
+        <button type="button" data-q="What is the deadline for submitting a proof of loss?">
+          Proof of loss deadline
+        </button>
+      </div>
+    </section>
+
+    <div id="boot" class="status boot" role="status">Starting…</div>
+    <div id="status" class="status" role="status" hidden></div>
+
+    <section id="answer" class="answer" hidden>
+      <span id="answerTag" class="answer-tag">Answer</span>
+      <div id="answerBody" class="answer-body"></div>
+    </section>
+
+    <section id="results" class="results" hidden>
+      <h2 class="sources-title">Retrieved context <span id="meta" class="meta-inline"></span></h2>
+      <div id="sources"></div>
+    </section>
+  </main>
+
+</body>
+</html>
